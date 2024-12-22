@@ -9,48 +9,48 @@ import Foundation
 
 enum Weekday: String {
     
-    case MONDAY = "Понедельник"
-    case TUESDAY = "Вторник"
-    case WEDNESDAY = "Среда"
-    case THURSDAY = "Четверг"
-    case FRIDAY = "Пятница"
-    case SATURDAY = "Суббота"
-    case SUNDAY = "Воскресенье"
+    case monday = "Понедельник"
+    case tuesday = "Вторник"
+    case wednesday = "Среда"
+    case thursday = "Четверг"
+    case friday = "Пятница"
+    case saturday = "Суббота"
+    case sunday = "Воскресенье"
     
     var shortName: String {
         switch self {
-        case .MONDAY:
+        case .monday:
             return "Пн"
-        case .TUESDAY:
+        case .tuesday:
             return "Вт"
-        case .WEDNESDAY:
+        case .wednesday:
             return "Ср"
-        case .THURSDAY:
+        case .thursday:
             return "Чт"
-        case .FRIDAY:
+        case .friday:
             return "Пт"
-        case .SATURDAY:
+        case .saturday:
             return "Сб"
-        case .SUNDAY:
+        case .sunday:
             return "Вс"
         }
     }
     
     var number: Int {
         switch self {
-        case .MONDAY:
+        case .monday:
             return 1
-        case .TUESDAY:
+        case .tuesday:
             return 2
-        case .WEDNESDAY:
+        case .wednesday:
             return 3
-        case .THURSDAY:
+        case .thursday:
             return 4
-        case .FRIDAY:
+        case .friday:
             return 5
-        case .SATURDAY:
+        case .saturday:
             return 6
-        case .SUNDAY:
+        case .sunday:
             return 7
         }
     }
@@ -59,19 +59,19 @@ enum Weekday: String {
         let day: Weekday
         switch intValue {
         case 1:
-            day = .MONDAY
+            day = .monday
         case 2:
-            day = .TUESDAY
+            day = .tuesday
         case 3:
-            day = .WEDNESDAY
+            day = .wednesday
         case 4:
-            day = .THURSDAY
+            day = .thursday
         case 5:
-            day = .FRIDAY
+            day = .friday
         case 6:
-            day = .SATURDAY
+            day = .saturday
         case 7:
-            day = .SUNDAY
+            day = .sunday
         default:
             return nil
         }

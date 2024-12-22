@@ -8,10 +8,9 @@
 import UIKit
 
 final class StatisticsController: UIViewController {
-    
-    let emptyListView = UIImageView()
-    let emptyListLabel = configLabel(
-        font: UIFont.systemFont(ofSize: 12, weight: .light),
+    private let emptyListView = UIImageView()
+    private let emptyListLabel = configLabel(
+        font: UIFont.systemFont(ofSize: 12, weight: .medium),
         color: .ypBlack
     )
     

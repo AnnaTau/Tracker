@@ -30,6 +30,17 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "completedTrackers.filter { $0.trackerId == tracker.id }.count">
+            </PersistentString>
+            <PersistentString
+               value = "completedTrackers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "main:AppDelegate.swift">
       </ContextState>
       <ContextState

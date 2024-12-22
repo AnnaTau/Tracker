@@ -9,6 +9,9 @@ import UIKit
 
 extension UIView {
     func addSubviews(_ subviews: [UIView]) {
-        subviews.forEach { addSubview($0) }
+        subviews.forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            addSubview($0)
+        }
     }
 }

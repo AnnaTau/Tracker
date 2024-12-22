@@ -7,19 +7,21 @@
 
 import Foundation
 
-enum Schedule {
-    case regular(Set<Weekday>)
-    case irregular(Date)
-}
+enum HabitType {
+    case habit
+    case event
 
-enum HabitType: String {
-    case habit = "Новая привычка"
-    case event = "Новое нерегулярное событие"
-    
+    var value: String {
+        return switch self {
+        case .habit: "Новая привычка"
+        case .event: "Новое нерегулярное событие"
+        }
+    }
+
     var countOfCells: Int {
-        switch self {
-        case .habit: return 2
-        case .event: return 1
+        return switch self {
+        case .habit: 2
+        case .event: 1
         }
     }
 }

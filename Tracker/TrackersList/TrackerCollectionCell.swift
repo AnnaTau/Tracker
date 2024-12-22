@@ -22,7 +22,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16)
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -32,7 +31,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         label.textColor = .ypWhite
         label.numberOfLines = 2
         label.textAlignment = .left
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -40,7 +38,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlack
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -48,7 +45,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let button = UIButton()
         button.layer.masksToBounds = true
         button.addTarget(self, action: #selector(plusButtonTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -56,7 +52,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.clipsToBounds = true
-        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -74,11 +69,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
     }
     
     private func setupLayout() {
-        contentView.addSubview(cellView)
-        cellView.addSubview(emojiLabel)
-        cellView.addSubview(nameLabel)
-        contentView.addSubview(daysLabel)
-        contentView.addSubview(plusButton)
+        cellView.addSubviews([emojiLabel, nameLabel])
+        contentView.addSubviews([cellView, daysLabel, plusButton])
         
         NSLayoutConstraint.activate([
             

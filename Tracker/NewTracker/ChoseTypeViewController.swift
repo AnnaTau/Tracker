@@ -13,15 +13,13 @@ protocol ChoseTypeViewDelegate: AnyObject {
 }
 
 final class ChoseTypeViewController: UIViewController {
-    
     var delegate: ChoseTypeViewDelegate?
     
-    private lazy var titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Создание трекера"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
@@ -33,7 +31,6 @@ final class ChoseTypeViewController: UIViewController {
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(habitButtonTapped(_:)), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
@@ -45,7 +42,6 @@ final class ChoseTypeViewController: UIViewController {
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(irregularButtonTapped(_:)), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
