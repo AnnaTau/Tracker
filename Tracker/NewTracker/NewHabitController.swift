@@ -33,6 +33,7 @@ final class NewHabitController: UIViewController {
         case .event: "🏝"
         }
     }()
+    let sections: [NewTrackerSection] = [.emojis, .colors]
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -93,6 +94,21 @@ final class NewHabitController: UIViewController {
         return cell
     }()
     
+    private lazy var colorAndEmojiCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.backgroundColor = .ypWhite
+        collectionView.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "emojiAndColorHeader"
+        )
+        collectionView.register(EmojiCell.self, forCellWithReuseIdentifier: "emojiCell")
+        collectionView.register(ColorCell.self, forCellWithReuseIdentifier: "colorCell")
+        return collectionView
+    }()
+    
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Отменить", for: .normal)
@@ -141,7 +157,7 @@ final class NewHabitController: UIViewController {
     private func configureView() {
         view.backgroundColor = .ypWhite
         
-        view.addSubviews([titleLabel, trackerNameTextField, tableView, buttonsStackView])
+        view.addSubviews([titleLabel, trackerNameTextField, tableView, colorAndEmojiCollectionView, buttonsStackView])
         
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -157,6 +173,11 @@ final class NewHabitController: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             tableView.heightAnchor.constraint(equalToConstant: CGFloat(habitType.countOfCells * 75)),
             
+            colorAndEmojiCollectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
+            colorAndEmojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            colorAndEmojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            buttonsStackView.topAnchor.constraint(equalTo: colorAndEmojiCollectionView.bottomAnchor, constant: 24),
             buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
