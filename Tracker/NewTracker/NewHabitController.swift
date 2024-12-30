@@ -21,19 +21,17 @@ final class NewHabitController: UIViewController {
         case .event: Schedule.irregular(Date())
         }
     }()
-    private lazy var color: UIColor = {
-        return switch habitType {
-        case .habit: .ypBlue
-        case .event: .ypRed
-        }
-    }()
-    private lazy var emoji: String = {
-        return switch habitType {
-        case .habit: "😇"
-        case .event: "🏝"
-        }
-    }()
+    var emoji: String?
+    var color: UIColor?
+    var emojiIndexPath: IndexPath?
+    var colorIndexPath: IndexPath?
     let sections: [NewTrackerSection] = [.emojis, .colors]
+    let params: NewTrackerLayoutParams = NewTrackerLayoutParams(
+        leftOrRightInset: 16,
+        topOrBottomInset: 24,
+        cellSpacing: 10,
+        itemsInRow: 6
+    )
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -104,6 +102,7 @@ final class NewHabitController: UIViewController {
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
             withReuseIdentifier: "emojiAndColorHeader"
         )
+
         collectionView.register(EmojiCell.self, forCellWithReuseIdentifier: "emojiCell")
         collectionView.register(ColorCell.self, forCellWithReuseIdentifier: "colorCell")
         return collectionView
@@ -128,6 +127,7 @@ final class NewHabitController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
         button.layer.cornerRadius = 16
+        button.isEnabled = false
         button.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -174,8 +174,8 @@ final class NewHabitController: UIViewController {
             tableView.heightAnchor.constraint(equalToConstant: CGFloat(habitType.countOfCells * 75)),
             
             colorAndEmojiCollectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
-            colorAndEmojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            colorAndEmojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            colorAndEmojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            colorAndEmojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
             buttonsStackView.topAnchor.constraint(equalTo: colorAndEmojiCollectionView.bottomAnchor, constant: 24),
             buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
@@ -185,6 +185,26 @@ final class NewHabitController: UIViewController {
         ])
     }
     
+    private func isReadyToSave(text: String?) -> Bool {
+        guard let text,
+              !text.isEmpty,
+              text.count <= 38,
+              let color,
+              let emoji
+        else { return false }
+        switch habitType {
+        case .habit:
+            return chosenDays.count > 0
+        case .event:
+            return true
+        }
+    }
+    
+    func updateSaveButton() {
+        createButton.isEnabled = isReadyToSave(text: trackerNameTextField.text)
+        createButton.backgroundColor = isReadyToSave(text: trackerNameTextField.text) ? .ypBlack : .ypGrey
+    }
+    
     @objc private func cancelButtonTapped() {
         dismiss(animated: true, completion: nil)
     }
@@ -192,7 +212,9 @@ final class NewHabitController: UIViewController {
     @objc private func saveButtonTapped() {
         guard let name = trackerNameTextField.text,
               !name.isEmpty,
-              let delegate
+              let delegate,
+              let color,
+              let emoji
         else { return }
         let tracker = Tracker(
             id: UUID(),
@@ -281,7 +303,7 @@ extension NewHabitController: ScheduleDelegate {
         }
         scheduleCell.detailTextLabel?.text = shortNamesOfDays
         if !chosenDays.isEmpty {
-            createButton.backgroundColor = .ypBlack
+            updateSaveButton()
         }
     }
 }
@@ -294,16 +316,11 @@ extension NewHabitController: UITextFieldDelegate {
     ) -> Bool {
         let currentText = textField.text ?? ""
         guard let stringRange = Range(range, in: currentText) else { return false }
-        let length = currentText.replacingCharacters(in: stringRange, with: string).count
-        switch habitType {
-        case .habit:
-            let isReadyToCreate = length > 0 && !chosenDays.isEmpty
-            createButton.backgroundColor = isReadyToCreate ? .ypBlack : .ypGrey
-        case .event:
-            let isReadyToCreate = length > 0
-            createButton.backgroundColor = isReadyToCreate ? .ypBlack : .ypGrey
-        }
-        return length <= 38
+        let text = currentText.replacingCharacters(in: stringRange, with: string)
+        let isReady = isReadyToSave(text: text)
+        createButton.backgroundColor = isReady ? .ypBlack : .ypGrey
+        createButton.isEnabled = isReady
+        return text.count <= 38
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

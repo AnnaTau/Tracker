@@ -20,8 +20,6 @@ final class EmojiCell: UICollectionViewCell {
     
     func configure(with emoji: String) {
         self.emoji = emoji
-        emojiLabel.text = emoji
-        contentView.backgroundColor = .clear
     }
     
     private func setup() {
@@ -43,5 +41,14 @@ final class EmojiCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    func selectCell() {
+        layer.cornerRadius = 16
+        backgroundColor = .ypLightGrey.withAlphaComponent(1.0)
+    }
+    
+    func clearSelection() {
+        backgroundColor = .clear
     }
 }

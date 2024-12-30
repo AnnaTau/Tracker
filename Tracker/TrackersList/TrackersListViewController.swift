@@ -14,7 +14,7 @@ final class TrackersListViewController: UIViewController {
     private(set) var currentDate: Date = Date()
     private let addTrackerButton: UIButton = .init()
     private let datePicker: UIDatePicker = .init()
-    private let params: TrackersCollectionLayoutParams = TrackersCollectionLayoutParams(
+    private let params: TrackersLayoutParams = TrackersLayoutParams(
         cellCount: 2,
         leftInset: 16,
         rightInset: 16,

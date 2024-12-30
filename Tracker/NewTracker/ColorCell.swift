@@ -28,8 +28,7 @@ final class ColorCell: UICollectionViewCell {
     }
     
     func configure(with color: UIColor) {
-        colorCell.backgroundColor = color
-        let borderColor = color.withAlphaComponent(0.3)
+        self.color = color
     }
     
     private func setup() {
@@ -43,5 +42,16 @@ final class ColorCell: UICollectionViewCell {
             colorCell.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             colorCell.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+    }
+    
+    func selectCell() {
+        layer.borderWidth = 3
+        layer.cornerRadius = 8
+        layer.borderColor = color?.withAlphaComponent(0.3).cgColor
+    }
+    
+    func clearSelection() {
+        layer.borderWidth = 0
+        layer.borderColor = .none
     }
 }

@@ -60,25 +60,22 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
                 withReuseIdentifier: "emojiAndColorHeader",
                 for: indexPath
             )
-            headerView.translatesAutoresizingMaskIntoConstraints = false
             let label = UILabel(frame: headerView.bounds)
-            label.translatesAutoresizingMaskIntoConstraints = false
             switch self.sections[indexPath.section] {
             case .colors:
-                label.text = "Color"
-            case .emojis: 
+                label.text = "Цвет"
+            case .emojis:
                 label.text = "Emoji"
             }
 
             label.textAlignment = .left
             label.textColor = .ypBlack
             label.font = UIFont.boldSystemFont(ofSize: 19)
-            headerView.addSubview(label)
+            headerView.addSubviews([label])
             
             NSLayoutConstraint.activate([
-                headerView.heightAnchor.constraint(equalToConstant: 18),
-                label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 12),
-                label.topAnchor.constraint(equalTo: headerView.topAnchor)
+                label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 28),
+                label.bottomAnchor.constraint(equalTo: headerView.bottomAnchor)
             ])
             
             return headerView
@@ -93,6 +90,61 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 50)
+        return CGSize(width: collectionView.frame.width, height: 34)
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        sizeForItemAt indexPath: IndexPath
+    ) -> CGSize {
+        return CGSize(
+            width: (collectionView.bounds.width - (params.leftOrRightInset * 2) - (params.cellSpacing * (params.itemsInRow - 1)))/params.itemsInRow,
+            height: 52
+        )
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int
+    ) -> CGFloat {
+        return params.cellSpacing
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout collectionViewLayout: UICollectionViewLayout,
+        insetForSectionAt section: Int
+    ) -> UIEdgeInsets {
+        return UIEdgeInsets(top: params.topOrBottomInset, left: params.leftOrRightInset, bottom: params.topOrBottomInset, right: params.leftOrRightInset)
+    }
+    
+    func collectionView(
+        _ collectionView: UICollectionView,
+        didSelectItemAt indexPath: IndexPath
+    ) {
+        switch sections[indexPath.section] {
+        case .emojis:
+            let cell = collectionView.cellForItem(at: indexPath) as? EmojiCell
+            if emoji != nil {
+                guard let previewCellIndex = emojiIndexPath else { return }
+                let newCell = collectionView.cellForItem(at: previewCellIndex) as? EmojiCell
+                newCell?.clearSelection()
+            }
+            cell?.selectCell()
+            emoji = CollectionData.emojis[indexPath.row]
+            emojiIndexPath = indexPath
+        case .colors:
+            let cell = collectionView.cellForItem(at: indexPath) as? ColorCell
+            if color != nil {
+                guard let previewCellIndex = colorIndexPath else { return }
+                let newCell = collectionView.cellForItem(at: previewCellIndex) as? ColorCell
+                newCell?.clearSelection()
+            }
+            cell?.selectCell()
+            color = CollectionData.colors[indexPath.row]
+            colorIndexPath = indexPath
+        }
+        updateSaveButton()
     }
 }

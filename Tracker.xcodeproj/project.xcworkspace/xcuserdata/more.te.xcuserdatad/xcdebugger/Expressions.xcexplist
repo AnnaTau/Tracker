@@ -3,6 +3,25 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "main:AppDelegate.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.collectionView(_:cellForItemAt:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "filteredTrackers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ColorCell.selectCell():ColorCell.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "color">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "TrackersListViewController.refreshViewForDate(date:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -10,14 +29,6 @@
             </PersistentString>
             <PersistentString
                value = "categories[safe: 0]">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "TrackersListViewController.collectionView(_:cellForItemAt:):TrackersListViewController.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "filteredTrackers">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -30,6 +41,14 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "TrackersListViewController.didCreateNewHabit(record:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "categories">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -37,17 +56,6 @@
             </PersistentString>
             <PersistentString
                value = "completedTrackers">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "main:AppDelegate.swift">
-      </ContextState>
-      <ContextState
-         contextName = "TrackersListViewController.didCreateNewHabit(record:):TrackersListViewController.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "categories">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
