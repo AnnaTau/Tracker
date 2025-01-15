@@ -124,10 +124,8 @@ final class TrackerCollectionCell: UICollectionViewCell {
     @objc private func plusButtonTapped() {
         guard let tracker,
               let selectedDate,
-              let delegate,
-              selectedDate < Date()
+              let delegate
         else { return }
-        
         let newCount = delegate.recordAdded(for: tracker, date: selectedDate)
         let isDone = newCount > count
         setupPlusButton(isDone: isDone, color: tracker.color)

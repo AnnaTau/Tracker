@@ -118,15 +118,16 @@ final class TrackersListViewController: UIViewController {
         var dayOfWeek = calendar.component(.weekday, from: date)
         dayOfWeek = (dayOfWeek == 1) ? 7 : dayOfWeek - 1
         return trackers.filter { tracker in
-            switch tracker.schedule {
-            case .regular(let days):
-                if let weekDay = Weekday.at(numberOfDay: dayOfWeek) {
-                    return days.contains(weekDay)
-                }
-                return false
-            case .irregular(let specificDate):
-                return calendar.isDate(specificDate, inSameDayAs: date)
+            if tracker.isHabit {
+                guard let weekDay = Weekday.at(numberOfDay: dayOfWeek),
+                      let schedule = tracker.schedule
+                else { return false }
+                return schedule.toWeekdays().contains(weekDay)
+            } else {
+                guard let date = tracker.date else { return false }
+                return calendar.isDate(date, inSameDayAs: date)
             }
+            
         }
     }
     
@@ -183,7 +184,7 @@ extension TrackersListViewController: TrackerCollectionCellDelegate {
         
         if !isListContainsTracker {
             completedTrackers.append(record)
-            if case .irregular = tracker.schedule {
+            if !tracker.isHabit {
                 return 1
             }
             return completedTrackers.filter { $0.trackerId == tracker.id }.count
@@ -234,7 +235,7 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             where: {$0.trackerId == record.trackerId && Calendar.current.isDate($0.date, inSameDayAs: record.date)}
         )
         
-        if case .irregular = tracker.schedule {
+        if !tracker.isHabit {
             let count = isListContainsTracker ? 1 : 0
             cell.configure(with: tracker, selectedDate: currentDate, count: count, isDone: isListContainsTracker)
         } else {

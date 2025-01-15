@@ -16,15 +16,18 @@ final class NewHabitController: UIViewController {
     private var chosenDays = [Weekday]()
     private let habitType: HabitType
     private lazy var schedule: Schedule = {
-        return switch habitType {
-        case .habit: Schedule.regular(Set(chosenDays.map { $0 }))
-        case .event: Schedule.irregular(Date())
-        }
+        return Schedule.fromArray(chosenDays)
     }()
     var emoji: String?
     var color: UIColor?
     var emojiIndexPath: IndexPath?
     var colorIndexPath: IndexPath?
+    lazy var isHabit: Bool = {
+        switch habitType {
+        case .habit: return true
+        case .event: return false
+        }
+    }()
     let sections: [NewTrackerSection] = [.emojis, .colors]
     let params: NewTrackerLayoutParams = NewTrackerLayoutParams(
         leftOrRightInset: 16,
@@ -221,7 +224,9 @@ final class NewHabitController: UIViewController {
             name: name,
             color: color,
             emoji: emoji,
-            schedule: schedule
+            isHabit: isHabit,
+            schedule: schedule,
+            date: Date()
         )
         delegate.didCreateNewHabit(record: tracker)
         dismiss(animated: true, completion: nil)

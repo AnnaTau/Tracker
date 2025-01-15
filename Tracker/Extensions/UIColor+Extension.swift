@@ -9,30 +9,26 @@ import UIKit
 
 extension UIColor {
     convenience init(hex: String) {
-        var hexFormatted: String = hex.trimmingCharacters(in: .whitespacesAndNewlines).uppercased()
-        
-        if hexFormatted.hasPrefix("#") {
-            hexFormatted.remove(at: hexFormatted.startIndex)
-        }
-        
-        var rgbValue: UInt64 = 0
-        var alpha: CGFloat = 1.0
-        
-        if hexFormatted.count == 6 {
-            Scanner(string: hexFormatted).scanHexInt64(&rgbValue)
-        } else if hexFormatted.count == 8 {
-            Scanner(string: hexFormatted).scanHexInt64(&rgbValue)
-            alpha = CGFloat((rgbValue & 0xFF000000) >> 24) / 255.0
-            rgbValue = rgbValue & 0x00FFFFFF
-        } else {
-            self.init(red: 0, green: 0, blue: 0, alpha: 1)
-            return
-        }
-        
-        let red = CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0
-        let green = CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0
-        let blue = CGFloat(rgbValue & 0x0000FF) / 255.0
-        
-        self.init(red: red, green: green, blue: blue, alpha: alpha)
+        var rgbValue:UInt64 = 0
+        Scanner(string: hex).scanHexInt64(&rgbValue)
+        self.init(
+            red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+            green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+            blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+            alpha: CGFloat(1.0)
+        )
+    }
+    
+    static func hexString(from color: UIColor) -> String {
+        let components = color.cgColor.components
+        let r: CGFloat = components?[0] ?? 0.0
+        let g: CGFloat = components?[1] ?? 0.0
+        let b: CGFloat = components?[2] ?? 0.0
+        return String.init(
+            format: "%02lX%02lX%02lX",
+            lroundf(Float(r * 255)),
+            lroundf(Float(g * 255)),
+            lroundf(Float(b * 255))
+        )
     }
 }
