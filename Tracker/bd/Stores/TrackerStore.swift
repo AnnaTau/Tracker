@@ -8,12 +8,31 @@
 import UIKit
 import CoreData
 
-final class TrackerStore {
+private enum TrackerStoreError: Error {
+    case decodingError
+}
+
+final class TrackerStore: NSObject {
     private let context: NSManagedObjectContext
     
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
+            let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+            fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCoreData.name, ascending: true)]
+            let controller = NSFetchedResultsController(
+                fetchRequest: fetchRequest,
+                managedObjectContext: context,
+                sectionNameKeyPath: #keyPath(TrackerCoreData.name),
+                cacheName: nil
+            )
+            controller.delegate = self
+            self.fetchedResultsController = controller
+            try? controller.performFetch()
+            return controller
+        }()
+    
     // MARK: - Inits
-    convenience init() {
-        let context = DBService.shared.context
+    convenience override init() {
+        let context = PersistentService.shared.context
         self.init(context: context)
     }
     
@@ -21,8 +40,8 @@ final class TrackerStore {
         self.context = context
     }
     
-    func addTracker(tracker: Tracker) -> TrackerCD {
-        let trackerCD = TrackerCD(context: context)
+    func addTracker(tracker: Tracker) -> TrackerCoreData {
+        let trackerCD = TrackerCoreData(context: context)
         trackerCD.id = tracker.id
         trackerCD.name = tracker.name
         trackerCD.emoji = tracker.emoji
@@ -33,18 +52,18 @@ final class TrackerStore {
         }
         trackerCD.schedule = Int32(schedule.rawValue)
         trackerCD.date = tracker.date
-        DBService.shared.saveContext()
+        PersistentService.shared.saveContext()
         return trackerCD
     }
     
-    func getTracker(from tracker: TrackerCD) throws -> Tracker {
+    func getTracker(from tracker: TrackerCoreData) -> Tracker {
         let isHabit = tracker.isHabit
         let schedule = tracker.schedule
+        let date = tracker.date
         guard let id = tracker.id,
               let name = tracker.name,
               let color = tracker.colorHex,
-              let emoji = tracker.emoji,
-              let date = tracker.date
+              let emoji = tracker.emoji
         else {
             preconditionFailure("Failure with getting tracker")
         }
@@ -54,8 +73,43 @@ final class TrackerStore {
             color: UIColor(hex: color),
             emoji: emoji,
             isHabit: isHabit,
-            schedule: Schedule(rawValue: Int(schedule)),
+            schedule: Weekdays(rawValue: schedule),
             date: date
         )
     }
+    
+    func fetchTrackers() -> [Tracker] {
+        guard let object = fetchedResultsController.fetchedObjects else { return [] }
+        let tracker = object.map ({ getTracker(from: $0) })
+        return tracker
+    }
+    
+    func fetchTrackers(for date: Date) -> [Tracker] {
+        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        let calendar = Calendar.current
+        let currentWeekdayInt = calendar.component(.weekday, from: date)
+        let currentWeekday = Weekdays.fromGregorianStyle(currentWeekdayInt)?.rawValue ?? 0
+        let dateStart = calendar.startOfDay(for: date) as NSDate
+        let datePredicate = NSPredicate(format: "date == %@", dateStart)
+        let scheduleZeroPredicate = NSPredicate(format: "schedule == 0 OR schedule == nil")
+        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, scheduleZeroPredicate])
+        let scheduleContainsDayPredicate = NSPredicate(format: "(schedule & %d) != 0", currentWeekday)
+        let finalPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [dateAndNoSchedulePredicate, scheduleContainsDayPredicate])
+        request.predicate = finalPredicate
+        let trackersFromCoreData = try? context.fetch(request)
+        guard let trackersFromCoreData else { return [] }
+        let filteredRecords = trackersFromCoreData.map { getTracker(from: $0) }
+        return filteredRecords
+    }
+    
+    func findTracker(with id: UUID) -> TrackerCoreData? {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        return try? context.fetch(request).first
+        
+    }
+}
+
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+
 }

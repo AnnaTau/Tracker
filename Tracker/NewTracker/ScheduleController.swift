@@ -8,11 +8,11 @@
 import UIKit
 
 protocol ScheduleDelegate: AnyObject {
-    func daysWasChosen(_ days: [Weekday])
+    func daysWasChosen(_ days: Weekdays)
 }
 
 final class ScheduleController: UIViewController {
-    var chosenDays = [Weekday]()
+    var chosenDays: Weekdays = Weekdays()
     weak var delegate: ScheduleDelegate?
     
     private let titleLabel: UILabel = {
@@ -77,12 +77,11 @@ final class ScheduleController: UIViewController {
     }
     
     @objc private func switchTapped(_ sender: UISwitch) {
-        guard let day = Weekday.at(numberOfDay: sender.tag) else { return }
+        guard let day = Weekdays.at(numberOfDay: sender.tag) else { return }
         if sender.isOn {
-            chosenDays.append(day)
+            chosenDays.insert(day)
         } else {
-            guard let index = chosenDays.firstIndex(of: day) else { return }
-            chosenDays.remove(at: index)
+            chosenDays.remove(day)
         }
     }
     
@@ -116,11 +115,11 @@ extension ScheduleController: UITableViewDelegate, UITableViewDataSource {
         _ tableView: UITableView,
         cellForRowAt indexPath: IndexPath
     ) -> UITableViewCell {
-        guard let day = Weekday.at(numberOfDay: indexPath.row + 1)
+        guard let day = Weekdays.at(numberOfDay: indexPath.row + 1)
         else { return UITableViewCell() }
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        cell.textLabel?.text = day.rawValue
+        cell.textLabel?.text = day.name
         
         let switchView = UISwitch()
         switchView.onTintColor = .ypBlue

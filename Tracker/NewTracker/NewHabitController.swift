@@ -13,11 +13,8 @@ protocol NewHabitDelegate: AnyObject {
 
 final class NewHabitController: UIViewController {
     var delegate: NewHabitDelegate?
-    private var chosenDays = [Weekday]()
+    private var chosenDays: Weekdays = Weekdays()
     private let habitType: HabitType
-    private lazy var schedule: Schedule = {
-        return Schedule.fromArray(chosenDays)
-    }()
     var emoji: String?
     var color: UIColor?
     var emojiIndexPath: IndexPath?
@@ -27,6 +24,10 @@ final class NewHabitController: UIViewController {
         case .habit: return true
         case .event: return false
         }
+    }()
+    lazy var dateForEvent: Date? = {
+        guard habitType == .event else { return nil }
+        return Calendar.current.startOfDay(for: Date())
     }()
     let sections: [NewTrackerSection] = [.emojis, .colors]
     let params: NewTrackerLayoutParams = NewTrackerLayoutParams(
@@ -197,7 +198,7 @@ final class NewHabitController: UIViewController {
         else { return false }
         switch habitType {
         case .habit:
-            return chosenDays.count > 0
+            return chosenDays.rawValue != 0
         case .event:
             return true
         }
@@ -225,8 +226,8 @@ final class NewHabitController: UIViewController {
             color: color,
             emoji: emoji,
             isHabit: isHabit,
-            schedule: schedule,
-            date: Date()
+            schedule: chosenDays,
+            date: dateForEvent
         )
         delegate.didCreateNewHabit(record: tracker)
         dismiss(animated: true, completion: nil)
@@ -296,7 +297,7 @@ extension NewHabitController: UITableViewDataSource {
 }
 
 extension NewHabitController: ScheduleDelegate {
-    func daysWasChosen(_ days: [Weekday]) {
+    func daysWasChosen(_ days: Weekdays) {
         self.chosenDays = days
         var shortNamesOfDays = ""
         for day in chosenDays {

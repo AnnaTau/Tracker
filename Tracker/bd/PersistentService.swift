@@ -7,8 +7,8 @@
 
 import CoreData
 
-final class DBService {
-    static let shared = DBService()
+final class PersistentService {
+    static let shared = PersistentService()
     lazy var container: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "Tracker")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in

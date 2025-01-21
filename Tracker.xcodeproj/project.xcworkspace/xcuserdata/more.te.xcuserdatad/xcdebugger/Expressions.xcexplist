@@ -3,15 +3,15 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "main:AppDelegate.swift">
-      </ContextState>
-      <ContextState
          contextName = "TrackersListViewController.collectionView(_:cellForItemAt:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
                value = "filteredTrackers">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
       </ContextState>
       <ContextState
          contextName = "ColorCell.selectCell():ColorCell.swift">
@@ -22,6 +22,26 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "TrackerCollectionCell.plusButtonTapped():TrackerCollectionCell.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.updateCollectionFor(date:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "categories">
+            </PersistentString>
+            <PersistentString
+               value = "trackersForCurrentDate">
+            </PersistentString>
+            <PersistentString
+               value = "recordsForCurrentDate">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "main:AppDelegate.swift">
+      </ContextState>
+      <ContextState
          contextName = "TrackersListViewController.refreshViewForDate(date:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -29,6 +49,14 @@
             </PersistentString>
             <PersistentString
                value = "categories[safe: 0]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TrackerRecordStore.deleteRecord(_:):TrackerRecordStore.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "findRecordsBy(date: dateStart)">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -52,10 +80,7 @@
          contextName = "TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "completedTrackers.filter { $0.trackerId == tracker.id }.count">
-            </PersistentString>
-            <PersistentString
-               value = "completedTrackers">
+               value = "Calendar.current.startOfDay(for: Date())">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

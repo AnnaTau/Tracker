@@ -8,10 +8,13 @@
 import UIKit
 
 final class TrackersListViewController: UIViewController {
+    private let dbService = DataBaseService.shared
     private var categories: [TrackerCategory] = []
-    private var completedTrackers: [TrackerRecord] = []
-    private var filteredTrackers: [Tracker] = []
-    private(set) var currentDate: Date = Date()
+    private var recordsForCurrentDate: [TrackerRecord] = []
+    private var trackersForCurrentDate: [Tracker] = []
+    private lazy var currentDate: Date = {
+        Calendar.current.startOfDay(for: Date())
+    }()
     private let addTrackerButton: UIButton = .init()
     private let datePicker: UIDatePicker = .init()
     private let params: TrackersLayoutParams = TrackersLayoutParams(
@@ -83,7 +86,7 @@ final class TrackersListViewController: UIViewController {
         
         //TODO заглушка для категорий
         let newCategory = TrackerCategory(name: "Важное", trackers: [])
-        categories.append(newCategory)
+        dbService.addCategory(newCategory)
         updateCollectionFor(date: currentDate)
     }
     
@@ -107,32 +110,16 @@ final class TrackersListViewController: UIViewController {
     }
     
     private func updateCollectionFor(date: Date) {
-        filteredTrackers = filterTrackers(by: date, trackers: categories[safe: 0]?.trackers ?? [])
-        trackerCollectionView.isHidden = filteredTrackers.isEmpty
-        placeHolder.isHidden = !filteredTrackers.isEmpty
+        trackersForCurrentDate = dbService.fetchTrackers(for: date)
+        recordsForCurrentDate = dbService.findAllRecordsBy(date: date)
+        categories = dbService.fetchCategories()
+        trackerCollectionView.isHidden = trackersForCurrentDate.isEmpty
+        placeHolder.isHidden = !trackersForCurrentDate.isEmpty
         trackerCollectionView.reloadData()
     }
     
-    private func filterTrackers(by date: Date, trackers: [Tracker]) -> [Tracker] {
-        let calendar = Calendar.current
-        var dayOfWeek = calendar.component(.weekday, from: date)
-        dayOfWeek = (dayOfWeek == 1) ? 7 : dayOfWeek - 1
-        return trackers.filter { tracker in
-            if tracker.isHabit {
-                guard let weekDay = Weekday.at(numberOfDay: dayOfWeek),
-                      let schedule = tracker.schedule
-                else { return false }
-                return schedule.toWeekdays().contains(weekDay)
-            } else {
-                guard let date = tracker.date else { return false }
-                return calendar.isDate(date, inSameDayAs: date)
-            }
-            
-        }
-    }
-    
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-        currentDate = sender.date
+        currentDate = Calendar.current.startOfDay(for: sender.date)
         updateCollectionFor(date: currentDate)
         dismiss(animated: true)
     }
@@ -165,12 +152,9 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
 
 extension TrackersListViewController: NewHabitDelegate {
     func didCreateNewHabit(record: Tracker) {
-        guard let category = categories[safe: 0] else {return}
-        let trackers = category.trackers + [record]
-        categories.remove(at: 0)
-        categories.append(TrackerCategory(name: category.name, trackers: trackers))
+        guard let category = categories.first else { return }
+        dbService.addTracker(tracker: record, for: category.name)
         updateCollectionFor(date: currentDate)
-        print("did create new habit \(record)")
     }
 }
 
@@ -178,31 +162,13 @@ extension TrackersListViewController: TrackerCollectionCellDelegate {
     //возвращаем количество дней
     func recordAdded(for tracker: Tracker, date: Date) -> Int {
         let record = TrackerRecord(trackerId: tracker.id, date: date)
-        let isListContainsTracker = completedTrackers.contains(
-            where: {$0.trackerId == record.trackerId && Calendar.current.isDate($0.date, inSameDayAs: record.date)}
-        )
-        
-        if !isListContainsTracker {
-            completedTrackers.append(record)
-            if !tracker.isHabit {
-                return 1
-            }
-            return completedTrackers.filter { $0.trackerId == tracker.id }.count
-        }
-        
-        let index = completedTrackers.firstIndex(
-            where: {$0.trackerId == record.trackerId && Calendar.current.isDate($0.date, inSameDayAs: record.date)}
-        )
-        
-        if let index {
-            completedTrackers.remove(at: index)
-            let count = completedTrackers.filter { $0.trackerId == tracker.id }.count
-            return count
+        if dbService.findRecordBy(date: record.date, trackerId: record.trackerId) != nil {
+            dbService.deleteRecord(record)
         } else {
-            let record = TrackerRecord(trackerId: tracker.id, date: date)
-            completedTrackers.append(record)
-            return completedTrackers.filter { $0.trackerId == tracker.id }.count
+            dbService.addRecord(record)
+            if !tracker.isHabit { return 1 }
         }
+        return dbService.findAllRecordsBy(trackerId: tracker.id).count
     }
 }
 
@@ -212,7 +178,7 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        return filteredTrackers.count
+        return trackersForCurrentDate.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -229,17 +195,16 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             return UICollectionViewCell()
         }
         
-        let tracker = filteredTrackers[indexPath.item]
-        let record = TrackerRecord(trackerId: tracker.id, date: currentDate)
-        let isListContainsTracker = completedTrackers.contains(
-            where: {$0.trackerId == record.trackerId && Calendar.current.isDate($0.date, inSameDayAs: record.date)}
+        let tracker = trackersForCurrentDate[indexPath.item]
+        let isListContainsTracker = recordsForCurrentDate.contains(
+            where: {$0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)}
         )
         
         if !tracker.isHabit {
             let count = isListContainsTracker ? 1 : 0
             cell.configure(with: tracker, selectedDate: currentDate, count: count, isDone: isListContainsTracker)
         } else {
-            let count = completedTrackers.filter { $0.trackerId == tracker.id }.count
+            let count = dbService.findAllRecordsBy(trackerId: tracker.id).count
             cell.configure(with: tracker, selectedDate: currentDate, count: count, isDone: isListContainsTracker)
         }
         
@@ -261,7 +226,8 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             headerView.translatesAutoresizingMaskIntoConstraints = false
             let label = UILabel(frame: headerView.bounds)
             label.translatesAutoresizingMaskIntoConstraints = false
-            label.text = categories[safe: indexPath.row]?.name
+            guard let category = categories.first else { return UICollectionReusableView() }
+            label.text = category.name
             label.textAlignment = .left
             label.textColor = .ypBlack
             label.font = UIFont.boldSystemFont(ofSize: 19)
