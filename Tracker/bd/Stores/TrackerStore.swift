@@ -8,10 +8,6 @@
 import UIKit
 import CoreData
 
-private enum TrackerStoreError: Error {
-    case decodingError
-}
-
 final class TrackerStore: NSObject {
     private let context: NSManagedObjectContext
     
@@ -78,23 +74,21 @@ final class TrackerStore: NSObject {
         )
     }
     
-    func fetchTrackers() -> [Tracker] {
-        guard let object = fetchedResultsController.fetchedObjects else { return [] }
-        let tracker = object.map ({ getTracker(from: $0) })
-        return tracker
-    }
-    
     func fetchTrackers(for date: Date) -> [Tracker] {
         let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
         let calendar = Calendar.current
         let currentWeekdayInt = calendar.component(.weekday, from: date)
-        let currentWeekday = Weekdays.fromGregorianStyle(currentWeekdayInt)?.rawValue ?? 0
-        let dateStart = calendar.startOfDay(for: date) as NSDate
+        guard let currentWeekday = Weekdays.fromGregorianStyle(currentWeekdayInt)?.rawValue else {
+            preconditionFailure("Failure with getting current weekday")
+        }
+        let dateStart = date.startOfDay() as NSDate
         let datePredicate = NSPredicate(format: "date == %@", dateStart)
-        let scheduleZeroPredicate = NSPredicate(format: "schedule == 0 OR schedule == nil")
-        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, scheduleZeroPredicate])
+        let notHabitPredicate = NSPredicate(format: "isHabit == false")
+        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, notHabitPredicate])
         let scheduleContainsDayPredicate = NSPredicate(format: "(schedule & %d) != 0", currentWeekday)
-        let finalPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [dateAndNoSchedulePredicate, scheduleContainsDayPredicate])
+        let isHabitPredicate = NSPredicate(format: "isHabit == true")
+        let habitAndSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [scheduleContainsDayPredicate, isHabitPredicate])
+        let finalPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [dateAndNoSchedulePredicate, habitAndSchedulePredicate])
         request.predicate = finalPredicate
         let trackersFromCoreData = try? context.fetch(request)
         guard let trackersFromCoreData else { return [] }
@@ -106,7 +100,6 @@ final class TrackerStore: NSObject {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         return try? context.fetch(request).first
-        
     }
 }
 

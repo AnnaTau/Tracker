@@ -11,9 +11,8 @@ final class TrackersListViewController: UIViewController {
     private let dbService = DataBaseService.shared
     private var categories: [TrackerCategory] = []
     private var recordsForCurrentDate: [TrackerRecord] = []
-    private var trackersForCurrentDate: [Tracker] = []
     private lazy var currentDate: Date = {
-        Calendar.current.startOfDay(for: Date())
+        Date().startOfDay()
     }()
     private let addTrackerButton: UIButton = .init()
     private let datePicker: UIDatePicker = .init()
@@ -21,7 +20,7 @@ final class TrackersListViewController: UIViewController {
         cellCount: 2,
         leftInset: 16,
         rightInset: 16,
-        cellSpacing: 10
+        cellSpacing: 9
     )
     
     private let placeHolderImage: UIImageView = {
@@ -110,16 +109,15 @@ final class TrackersListViewController: UIViewController {
     }
     
     private func updateCollectionFor(date: Date) {
-        trackersForCurrentDate = dbService.fetchTrackers(for: date)
         recordsForCurrentDate = dbService.findAllRecordsBy(date: date)
-        categories = dbService.fetchCategories()
-        trackerCollectionView.isHidden = trackersForCurrentDate.isEmpty
-        placeHolder.isHidden = !trackersForCurrentDate.isEmpty
+        categories = dbService.findCategoriesBy(date: date)
+        trackerCollectionView.isHidden = categories.isEmpty
+        placeHolder.isHidden = !categories.isEmpty
         trackerCollectionView.reloadData()
     }
     
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-        currentDate = Calendar.current.startOfDay(for: sender.date)
+        currentDate = sender.date.startOfDay()
         updateCollectionFor(date: currentDate)
         dismiss(animated: true)
     }
@@ -178,7 +176,7 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        return trackersForCurrentDate.count
+        return categories[section].trackers.count
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -195,9 +193,9 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             return UICollectionViewCell()
         }
         
-        let tracker = trackersForCurrentDate[indexPath.item]
+        let tracker = categories[indexPath.section].trackers[indexPath.item]
         let isListContainsTracker = recordsForCurrentDate.contains(
-            where: {$0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)}
+            where: { $0.trackerId == tracker.id && $0.date.isSameDay(as: currentDate) }
         )
         
         if !tracker.isHabit {
@@ -226,7 +224,7 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             headerView.translatesAutoresizingMaskIntoConstraints = false
             let label = UILabel(frame: headerView.bounds)
             label.translatesAutoresizingMaskIntoConstraints = false
-            guard let category = categories.first else { return UICollectionReusableView() }
+            let category = categories[indexPath.section]
             label.text = category.name
             label.textAlignment = .left
             label.textColor = .ypBlack
@@ -270,7 +268,7 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         minimumLineSpacingForSectionAt section: Int
     ) -> CGFloat{
-        10
+        6
     }
     
     func collectionView(

@@ -27,7 +27,7 @@ final class NewHabitController: UIViewController {
     }()
     lazy var dateForEvent: Date? = {
         guard habitType == .event else { return nil }
-        return Calendar.current.startOfDay(for: Date())
+        return Date().startOfDay()
     }()
     let sections: [NewTrackerSection] = [.emojis, .colors]
     let params: NewTrackerLayoutParams = NewTrackerLayoutParams(
@@ -36,6 +36,19 @@ final class NewHabitController: UIViewController {
         cellSpacing: 10,
         itemsInRow: 6
     )
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.isScrollEnabled = true
+        scrollView.showsVerticalScrollIndicator = false
+        return scrollView
+    }()
+    
+    private lazy var contentView: UIStackView = {
+        let contentView = UIStackView()
+        contentView.axis = .vertical
+        return contentView
+    }()
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -100,6 +113,7 @@ final class NewHabitController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
+        collectionView.isScrollEnabled = false
         collectionView.backgroundColor = .ypWhite
         collectionView.register(
             UICollectionReusableView.self,
@@ -161,30 +175,44 @@ final class NewHabitController: UIViewController {
     private func configureView() {
         view.backgroundColor = .ypWhite
         
-        view.addSubviews([titleLabel, trackerNameTextField, tableView, colorAndEmojiCollectionView, buttonsStackView])
+        view.addSubviews([scrollView])
+        contentView.addSubviews([titleLabel, trackerNameTextField, tableView, colorAndEmojiCollectionView, buttonsStackView])
+        scrollView.addSubviews([contentView])
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            trackerNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            trackerNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
+            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
             
             tableView.topAnchor.constraint(equalTo: trackerNameTextField.bottomAnchor, constant: 24),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             tableView.heightAnchor.constraint(equalToConstant: CGFloat(habitType.countOfCells * 75)),
             
             colorAndEmojiCollectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
-            colorAndEmojiCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            colorAndEmojiCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            colorAndEmojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorAndEmojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            colorAndEmojiCollectionView.heightAnchor.constraint(equalToConstant: 520),
             
-            buttonsStackView.topAnchor.constraint(equalTo: colorAndEmojiCollectionView.bottomAnchor, constant: 24),
-            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            buttonsStackView.topAnchor.constraint(equalTo: colorAndEmojiCollectionView.bottomAnchor, constant: 16),
+            buttonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            buttonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            buttonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
     }

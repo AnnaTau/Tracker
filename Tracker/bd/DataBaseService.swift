@@ -36,30 +36,11 @@ final class DataBaseService {
         trackerCategoryStore.findCategoriesFor(date: date)
     }
     
-    func getCategoriesCount() -> Int {
-        guard let count = try? trackerCategoryStore.fetchCategories().count
-        else { return 1 }
-        return count
-    }
-    
-    func fetchCategories() -> [TrackerCategory] {
-        let categories = try? trackerCategoryStore.fetchCategories()
-        guard let categories else {
-            print("Do not fetch Categories")
-            return []
-        }
-        return categories
-    }
-    
     func addCategory(_ category: TrackerCategory) {
         trackerCategoryStore.addCategory(category)
     }
     
     // MARK: - Record Methods
-    
-    func fetchRecords() -> Set<TrackerRecord> {
-        trackerRecordStore.fetchRecords()
-    }
     
     func findRecordBy(date: Date, trackerId: UUID) -> TrackerRecord? {
         trackerRecordStore.findRecordBy(date: date, trackerId: trackerId)

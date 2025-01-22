@@ -8,10 +8,6 @@
 import UIKit
 import CoreData
 
-private enum TrackerCategoryStoreError: Error {
-    case decodingError
-}
-
 final class TrackerCategoryStore: NSObject {
     private let context: NSManagedObjectContext
     private let trackerStore = TrackerStore()
@@ -59,30 +55,32 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func fetchCategories() -> [TrackerCategory] {
-        guard let object = fetchedResultsController.fetchedObjects,
-              let categories = try? object.map({ try getCategory(from: $0)})
-        else {
+        guard let object = fetchedResultsController.fetchedObjects else {
             return []
         }
-        return categories
+        return object.map({ getCategory(from: $0) })
     }
     
     func findCategoriesFor(date: Date) -> [TrackerCategory] {
         let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
         let calendar = Calendar.current
         let currentWeekdayInt = calendar.component(.weekday, from: date)
-        let currentWeekday = Weekdays.fromGregorianStyle(currentWeekdayInt)?.rawValue ?? 0
-        let dateStart = calendar.startOfDay(for: date) as NSDate
+        guard let currentWeekday = Weekdays.fromGregorianStyle(currentWeekdayInt)?.rawValue else {
+            preconditionFailure("Failure with getting current weekday")
+        }
+        let dateStart = date.startOfDay() as NSDate
         let datePredicate = NSPredicate(format: "date == %@", dateStart)
-        let scheduleZeroPredicate = NSPredicate(format: "schedule == 0 OR schedule == nil")
-        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, scheduleZeroPredicate])
+        let notHabitPredicate = NSPredicate(format: "isHabit == false")
+        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, notHabitPredicate])
         let scheduleContainsDayPredicate = NSPredicate(format: "(schedule & %d) != 0", currentWeekday)
-        let finalPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [dateAndNoSchedulePredicate, scheduleContainsDayPredicate])
+        let isHabitPredicate = NSPredicate(format: "isHabit == true")
+        let habitAndSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [scheduleContainsDayPredicate, isHabitPredicate])
+        let finalPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [dateAndNoSchedulePredicate, habitAndSchedulePredicate])
         request.predicate = finalPredicate
-        let trackersFromCoreData = try? context.fetch(request)
+        guard let trackersFromCoreData = try? context.fetch(request) else { return [] }
         var categories: [TrackerCategory] = []
-        for trackerCoreData in trackersFromCoreData ?? [] {
-            if let category = categories.first(where: { $0.name == trackerCoreData.name }) {
+        for trackerCoreData in trackersFromCoreData {
+            if let category = categories.first(where: { $0.name == trackerCoreData.category?.name }) {
                 let name = category.name
                 let oldTrackers = category.trackers
                 let newCategory = TrackerCategory(name: name, trackers: oldTrackers + [trackerStore.getTracker(from: trackerCoreData)])
@@ -94,29 +92,21 @@ final class TrackerCategoryStore: NSObject {
                 let newCategory = TrackerCategory(name: category ?? "", trackers: trackers)
                 categories.append(newCategory)
             }
-            
         }
         return categories
     }
     
-    private func getCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
+    private func getCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory {
         guard let name = trackerCategoryCoreData.name,
               let trackersFromCoreData = trackerCategoryCoreData.trackers else {
-            throw TrackerCategoryStoreError.decodingError
+            preconditionFailure("Failure with decoding trackerCategoryCoreData")
         }
-        
-        let trackers = try trackersFromCoreData.compactMap { tracker -> Tracker? in
+        let trackers = trackersFromCoreData.compactMap { tracker -> Tracker? in
             guard let trackerCoreData = tracker as? TrackerCoreData else {
-                throw TrackerCategoryStoreError.decodingError
+                preconditionFailure("Failure with decoding trackerCoreData")
             }
-            
-            do {
-                let tracker = try trackerStore.getTracker(from: trackerCoreData)
-                return tracker
-            } catch {
-                print("\(error.localizedDescription)")
-                return nil
-            }
+            let tracker = trackerStore.getTracker(from: trackerCoreData)
+            return tracker
         }
         return TrackerCategory(name: name, trackers: trackers)
     }

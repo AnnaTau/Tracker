@@ -90,6 +90,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
             
             plusButton.topAnchor.constraint(equalTo: cellView.bottomAnchor, constant: 8),
             plusButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            plusButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
             plusButton.widthAnchor.constraint(equalToConstant: 34),
             plusButton.heightAnchor.constraint(equalToConstant: 34),
             
