@@ -33,15 +33,6 @@ final class TrackerRecordStore {
         PersistentService.shared.saveContext()
     }
     
-    private func getRecord(from trackerRecordCoreData: TrackerRecordCoreData) -> TrackerRecord {
-        guard let id = trackerRecordCoreData.trackerId,
-              let date = trackerRecordCoreData.date else {
-            preconditionFailure("Failure with getting record")
-        }
-        let trackerRecord = TrackerRecord(trackerId: id, date: date)
-        return trackerRecord
-    }
-    
     func findRecordBy(date: Date, trackerId: UUID) -> TrackerRecord? {
         let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
         let dateStart = date.startOfDay() as NSDate
@@ -74,9 +65,20 @@ final class TrackerRecordStore {
         }
     }
     
+    // MARK: - Private methods
+    
     private func findTracker(with id: UUID) -> TrackerCoreData? {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         return try? context.fetch(request).first
+    }
+    
+    private func getRecord(from trackerRecordCoreData: TrackerRecordCoreData) -> TrackerRecord {
+        guard let id = trackerRecordCoreData.trackerId,
+              let date = trackerRecordCoreData.date else {
+            preconditionFailure("Failure with getting record")
+        }
+        let trackerRecord = TrackerRecord(trackerId: id, date: date)
+        return trackerRecord
     }
 }

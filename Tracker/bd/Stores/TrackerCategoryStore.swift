@@ -37,35 +37,25 @@ final class TrackerCategoryStore: NSObject {
         self.context = context
     }
     
-    func addCategory(_ category: TrackerCategory) {
-        let allCategories = fetchCategories()
-        if allCategories.contains(where: {$0.name == category.name}) {
-            return
-        }
-        let trackerCategory = TrackerCategoryCoreData(context: context)
-        trackerCategory.name = category.name
-        trackerCategory.trackers = []
+    func addCategory(_ category: String) {
+        if findCategoryBy(name: category) != nil { return }
+        let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
+        trackerCategoryCoreData.name = category
         PersistentService.shared.saveContext()
     }
     
-    func fetchCategories() -> [TrackerCategory] {
+    func fetchAllCategories() -> [String?] {
         guard let object = fetchedResultsController.fetchedObjects else { return [] }
-        return object.map({ getCategory(from: $0) })
+        return object.map(\.name)
     }
     
-    private func getCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory {
-        guard let name = trackerCategoryCoreData.name,
-              let trackersFromCoreData = trackerCategoryCoreData.trackers else {
-            preconditionFailure("Failure with decoding trackerCategoryCoreData")
+    private func findCategoryBy(name: String) -> TrackerCategoryCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "name == %@", name)
+        if let fetchedCategory = try? context.fetch(fetchRequest).first {
+            return fetchedCategory
         }
-        let trackers = trackersFromCoreData.compactMap { tracker -> Tracker? in
-            guard let trackerCoreData = tracker as? TrackerCoreData else {
-                preconditionFailure("Failure with decoding trackerCoreData")
-            }
-            let tracker = trackerStore.getTracker(from: trackerCoreData)
-            return tracker
-        }
-        return TrackerCategory(name: name, trackers: trackers)
+        return nil
     }
 }
 

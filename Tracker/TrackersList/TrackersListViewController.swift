@@ -85,8 +85,7 @@ final class TrackersListViewController: UIViewController {
         addConstraints()
         
         //TODO заглушка для категорий
-        let newCategory = TrackerCategory(name: "Важное", trackers: [])
-        trackerCategoryStore.addCategory(newCategory)
+        trackerCategoryStore.addCategory("Важное")
         configureStore()
     }
     
@@ -165,8 +164,11 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
 
 extension TrackersListViewController: NewHabitDelegate {
     func didCreateNewHabit(tracker: Tracker) {
-        guard let category = trackerCategoryStore.fetchCategories().first else { return }
-        trackerStore.addTracker(tracker: tracker, category: category.name)
+        guard
+            let category = trackerCategoryStore.fetchAllCategories().first,
+            let name = category
+        else { return }
+        trackerStore.addTracker(tracker: tracker, category: name)
     }
 }
 

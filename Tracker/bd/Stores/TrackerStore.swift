@@ -18,7 +18,6 @@ final class TrackerStore: NSObject {
     private var deletedItems = [Int: IndexSet]()
     private var updatedItems = [Int: IndexSet]()
     private var movedItems = [(from: IndexPath, to: IndexPath)]()
-    var onDataUpdate: ( (_ update: IndexUpdate) -> Void )?
     
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
@@ -77,7 +76,9 @@ final class TrackerStore: NSObject {
         PersistentService.shared.saveContext()
     }
     
-    func getTracker(from tracker: TrackerCoreData) -> Tracker {
+    // MARK: - Private methods
+    
+    private func getTracker(from tracker: TrackerCoreData) -> Tracker {
         let isHabit = tracker.isHabit
         let schedule = tracker.schedule
         let date = tracker.date
@@ -98,8 +99,6 @@ final class TrackerStore: NSObject {
             date: date
         )
     }
-    
-    // MARK: - Private methods
     
     private func findCategory(by title: String) -> TrackerCategoryCoreData? {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
