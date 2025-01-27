@@ -8,9 +8,10 @@
 import UIKit
 
 final class TrackersListViewController: UIViewController {
-    private let dbService = DataBaseService.shared
-    private var categories: [TrackerCategory] = []
-    private var recordsForCurrentDate: [TrackerRecord] = []
+    private let trackerStore = TrackerStore.shared
+    private let trackerRecordStore = TrackerRecordStore.shared
+    private let trackerCategoryStore = TrackerCategoryStore.shared
+    private var collectionHelper: TrackerCollectionHelper?
     private lazy var currentDate: Date = {
         Date().startOfDay()
     }()
@@ -85,8 +86,8 @@ final class TrackersListViewController: UIViewController {
         
         //TODO заглушка для категорий
         let newCategory = TrackerCategory(name: "Важное", trackers: [])
-        dbService.addCategory(newCategory)
-        updateCollectionFor(date: currentDate)
+        trackerCategoryStore.addCategory(newCategory)
+        configureStore()
     }
     
     private func addConstraints() {
@@ -108,17 +109,31 @@ final class TrackersListViewController: UIViewController {
         ])
     }
     
-    private func updateCollectionFor(date: Date) {
-        recordsForCurrentDate = dbService.findAllRecordsBy(date: date)
-        categories = dbService.findCategoriesBy(date: date)
-        trackerCollectionView.isHidden = categories.isEmpty
-        placeHolder.isHidden = !categories.isEmpty
-        trackerCollectionView.reloadData()
+    private func configureStore() {
+        trackerStore.delegate = self
+        collectionHelper = TrackerCollectionHelper()
+        collectionHelper?.fetchTrackers(for: currentDate) { [weak self] in
+            guard let self else { return }
+            if let trackersViewModel = self.collectionHelper {
+                let isHidden = trackersViewModel.numberOfSections() > 0
+                self.trackerCollectionView.isHidden = !isHidden
+                self.placeHolder.isHidden = isHidden
+            }
+        }
     }
     
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date.startOfDay()
-        updateCollectionFor(date: currentDate)
+        collectionHelper?.fetchTrackers(for: currentDate){ [weak self] in
+            guard let self,
+                  let numberOfSections = collectionHelper?.numberOfSections()
+            else {return
+            }
+            self.trackerCollectionView.reloadData()
+            let isHidden = numberOfSections > 0
+            self.trackerCollectionView.isHidden = !isHidden
+            self.placeHolder.isHidden = isHidden
+        }
         dismiss(animated: true)
     }
     
@@ -149,10 +164,9 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
 }
 
 extension TrackersListViewController: NewHabitDelegate {
-    func didCreateNewHabit(record: Tracker) {
-        guard let category = categories.first else { return }
-        dbService.addTracker(tracker: record, for: category.name)
-        updateCollectionFor(date: currentDate)
+    func didCreateNewHabit(tracker: Tracker) {
+        guard let category = trackerCategoryStore.fetchCategories().first else { return }
+        trackerStore.addTracker(tracker: tracker, category: category.name)
     }
 }
 
@@ -160,13 +174,13 @@ extension TrackersListViewController: TrackerCollectionCellDelegate {
     //возвращаем количество дней
     func recordAdded(for tracker: Tracker, date: Date) -> Int {
         let record = TrackerRecord(trackerId: tracker.id, date: date)
-        if dbService.findRecordBy(date: record.date, trackerId: record.trackerId) != nil {
-            dbService.deleteRecord(record)
+        if trackerRecordStore.findRecordBy(date: record.date, trackerId: record.trackerId) != nil {
+            trackerRecordStore.deleteRecord(record)
         } else {
-            dbService.addRecord(record)
+            trackerRecordStore.addRecord(record)
             if !tracker.isHabit { return 1 }
         }
-        return dbService.findAllRecordsBy(trackerId: tracker.id).count
+        return trackerRecordStore.findRecordsBy(trackerId: tracker.id).count
     }
 }
 
@@ -176,11 +190,11 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        return categories[section].trackers.count
+        return collectionHelper?.numberOfRowsInSection(section) ?? 0
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return categories.count
+        return collectionHelper?.numberOfSections() ?? 0
     }
     
     func collectionView(
@@ -192,19 +206,12 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
         ) as? TrackerCollectionCell else {
             return UICollectionViewCell()
         }
-        
-        let tracker = categories[indexPath.section].trackers[indexPath.item]
-        let isListContainsTracker = recordsForCurrentDate.contains(
-            where: { $0.trackerId == tracker.id && $0.date.isSameDay(as: currentDate) }
-        )
-        
-        if !tracker.isHabit {
-            let count = isListContainsTracker ? 1 : 0
-            cell.configure(with: tracker, selectedDate: currentDate, count: count, isDone: isListContainsTracker)
-        } else {
-            let count = dbService.findAllRecordsBy(trackerId: tracker.id).count
-            cell.configure(with: tracker, selectedDate: currentDate, count: count, isDone: isListContainsTracker)
+        guard let tracker = collectionHelper?.object(at: indexPath) else {
+            return UICollectionViewCell()
         }
+        let count = trackerRecordStore.findRecordsBy(trackerId: tracker.id).count
+        let isDone = trackerRecordStore.findRecordBy(date: currentDate, trackerId: tracker.id) != nil
+        cell.configure(with: tracker, selectedDate: currentDate, count: count, isDone: isDone)
         
         cell.delegate = self
         return cell
@@ -224,8 +231,10 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             headerView.translatesAutoresizingMaskIntoConstraints = false
             let label = UILabel(frame: headerView.bounds)
             label.translatesAutoresizingMaskIntoConstraints = false
-            let category = categories[indexPath.section]
-            label.text = category.name
+            guard let sectionTitle = collectionHelper?.titleForSection(indexPath.section) else {
+                return UICollectionReusableView()
+            }
+            label.text = sectionTitle
             label.textAlignment = .left
             label.textColor = .ypBlack
             label.font = UIFont.boldSystemFont(ofSize: 19)
@@ -285,5 +294,41 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
         return CGSize(width: collectionView.frame.width, height: 50)
+    }
+}
+
+extension TrackersListViewController: TrackerStoreDelegate {
+    func store(didChangeContentWith update: IndexUpdate) {
+        collectionHelper?.fetchTrackers(for: currentDate) { [weak self] in
+            guard let self else {return }
+            if let trackersViewModel = self.collectionHelper {
+                let isHidden = trackersViewModel.numberOfSections() > 0
+                self.trackerCollectionView.isHidden = !isHidden
+                self.placeHolder.isHidden = isHidden
+            }
+        }
+        trackerCollectionView.performBatchUpdates({
+            if !update.deletedSections.isEmpty {
+                trackerCollectionView.deleteSections(update.deletedSections)
+            }
+            if !update.insertedSections.isEmpty {
+                trackerCollectionView.insertSections(update.insertedSections)
+            }
+            for (section, items) in update.insertedItems {
+                let indexPaths = items.map { IndexPath(item: $0, section: section) }
+                trackerCollectionView.insertItems(at: indexPaths)
+            }
+            for (section, items) in update.deletedItems {
+                let indexPaths = items.map { IndexPath(item: $0, section: section) }
+                trackerCollectionView.deleteItems(at: indexPaths)
+            }
+            for (section, items) in update.updatedItems {
+                let indexPaths = items.map { IndexPath(item: $0, section: section) }
+                trackerCollectionView.reloadItems(at: indexPaths)
+            }
+            for move in update.movedItems {
+                trackerCollectionView.moveItem(at: move.from, to: move.to)
+            }
+        }, completion: nil)
     }
 }

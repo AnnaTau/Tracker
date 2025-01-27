@@ -8,7 +8,7 @@
 import UIKit
 
 protocol NewHabitDelegate: AnyObject {
-    func didCreateNewHabit(record: Tracker)
+    func didCreateNewHabit(tracker: Tracker)
 }
 
 final class NewHabitController: UIViewController {
@@ -257,7 +257,7 @@ final class NewHabitController: UIViewController {
             schedule: chosenDays,
             date: dateForEvent
         )
-        delegate.didCreateNewHabit(record: tracker)
+        delegate.didCreateNewHabit(tracker: tracker)
         dismiss(animated: true, completion: nil)
     }
 }

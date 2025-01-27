@@ -9,8 +9,9 @@ import UIKit
 import CoreData
 
 final class TrackerRecordStore {
+    static let shared = TrackerRecordStore()
     private let context: NSManagedObjectContext
-    private let trackerStore = TrackerStore()
+    private let trackerStore = TrackerStore.shared
     
     convenience init() {
         let context = PersistentService.shared.context
@@ -22,7 +23,7 @@ final class TrackerRecordStore {
     }
     
     func addRecord(_ record: TrackerRecord) {
-        guard let tracker = trackerStore.findTracker(with: record.trackerId) else {
+        guard let tracker = findTracker(with: record.trackerId) else {
             preconditionFailure("Failure with getting tracker")
         }
         let trackerRecord = TrackerRecordCoreData(context: context)
@@ -62,17 +63,6 @@ final class TrackerRecordStore {
         return foundRecords
     }
     
-    func findRecordsBy(date: Date) -> [TrackerRecord] {
-        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
-        let dateStart = date.startOfDay() as NSDate
-        let predicate = NSPredicate(format: "date == %@", dateStart)
-        request.predicate = predicate
-        let trackerRecordsFromCoreData = try? context.fetch(request)
-        guard let records = trackerRecordsFromCoreData else { return [] }
-        let foundRecords = records.map { getRecord(from: $0) }
-        return foundRecords
-    }
-    
     func deleteRecord(_ record: TrackerRecord) {
         let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
         let dateStart = record.date.startOfDay() as NSDate
@@ -82,5 +72,11 @@ final class TrackerRecordStore {
             context.delete(recordForDelete)
             PersistentService.shared.saveContext()
         }
+    }
+    
+    private func findTracker(with id: UUID) -> TrackerCoreData? {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        return try? context.fetch(request).first
     }
 }
