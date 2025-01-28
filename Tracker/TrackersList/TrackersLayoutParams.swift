@@ -1,5 +1,5 @@
 //
-//  TrackersCollectionLayoutParams.swift
+//  TrackersLayoutParams.swift
 //  Tracker
 //
 //  Created by Анна Рыкунова on 19.12.2024.
@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct TrackersCollectionLayoutParams {
+struct TrackersLayoutParams {
     let cellCount: Int
     let leftInset: CGFloat
     let rightInset: CGFloat

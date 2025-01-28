@@ -14,12 +14,62 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "TrackersListViewController.collectionView(_:cellForItemAt:):TrackersListViewController.swift">
+         contextName = "TrackersListViewController.updateCollectionFor(date:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "filteredTrackers">
+               value = "recordsForCurrentDate">
+            </PersistentString>
+            <PersistentString
+               value = "categories2">
+            </PersistentString>
+            <PersistentString
+               value = "categories">
+            </PersistentString>
+            <PersistentString
+               value = "trackersForCurrentDate">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "closure #1 in TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TrackerRecordStore.deleteRecord(_:):TrackerRecordStore.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "findRecordsBy(date: dateStart)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "ColorCell.selectCell():ColorCell.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "color">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.didCreateNewHabit(record:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "categories">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "Calendar.current.startOfDay(for: Date())">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "main:AppDelegate.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TrackerCollectionCell.plusButtonTapped():TrackerCollectionCell.swift">
       </ContextState>
       <ContextState
          contextName = "NewHabitController.textField(_:shouldChangeCharactersIn:replacementString:):NewHabitController.swift">
@@ -30,24 +80,21 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
+         contextName = "TrackerCategoryStore.findCategoriesFor(date:):TrackerCategoryStore.swift">
          <PersistentStrings>
             <PersistentString
-               value = "completedTrackers.filter { $0.trackerId == tracker.id }.count">
+               value = "trackerCoreData.name">
             </PersistentString>
             <PersistentString
-               value = "completedTrackers">
+               value = "categories.first">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "main:AppDelegate.swift">
-      </ContextState>
-      <ContextState
-         contextName = "TrackersListViewController.didCreateNewHabit(record:):TrackersListViewController.swift">
+         contextName = "TrackersListViewController.collectionView(_:cellForItemAt:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
-               value = "categories">
+               value = "filteredTrackers">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

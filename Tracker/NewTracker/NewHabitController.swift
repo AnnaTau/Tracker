@@ -8,30 +8,46 @@
 import UIKit
 
 protocol NewHabitDelegate: AnyObject {
-    func didCreateNewHabit(record: Tracker)
+    func didCreateNewHabit(tracker: Tracker)
 }
 
 final class NewHabitController: UIViewController {
     var delegate: NewHabitDelegate?
-    private var chosenDays = [Weekday]()
+    private var chosenDays: Weekdays = Weekdays()
     private let habitType: HabitType
-    private lazy var schedule: Schedule = {
-        return switch habitType {
-        case .habit: Schedule.regular(Set(chosenDays.map { $0 }))
-        case .event: Schedule.irregular(Date())
+    var emoji: String?
+    var color: UIColor?
+    var emojiIndexPath: IndexPath?
+    var colorIndexPath: IndexPath?
+    lazy var isHabit: Bool = {
+        switch habitType {
+        case .habit: return true
+        case .event: return false
         }
     }()
-    private lazy var color: UIColor = {
-        return switch habitType {
-        case .habit: .ypBlue
-        case .event: .ypRed
-        }
+    lazy var dateForEvent: Date? = {
+        guard habitType == .event else { return nil }
+        return Date().startOfDay()
     }()
-    private lazy var emoji: String = {
-        return switch habitType {
-        case .habit: "😇"
-        case .event: "🏝"
-        }
+    let sections: [NewTrackerSection] = [.emojis, .colors]
+    let params: NewTrackerLayoutParams = NewTrackerLayoutParams(
+        leftOrRightInset: 16,
+        topOrBottomInset: 24,
+        cellSpacing: 10,
+        itemsInRow: 6
+    )
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.isScrollEnabled = true
+        scrollView.showsVerticalScrollIndicator = false
+        return scrollView
+    }()
+    
+    private lazy var contentView: UIStackView = {
+        let contentView = UIStackView()
+        contentView.axis = .vertical
+        return contentView
     }()
     
     private lazy var titleLabel: UILabel = {
@@ -93,6 +109,23 @@ final class NewHabitController: UIViewController {
         return cell
     }()
     
+    private lazy var colorAndEmojiCollectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.isScrollEnabled = false
+        collectionView.backgroundColor = .ypWhite
+        collectionView.register(
+            UICollectionReusableView.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "emojiAndColorHeader"
+        )
+
+        collectionView.register(EmojiCell.self, forCellWithReuseIdentifier: "emojiCell")
+        collectionView.register(ColorCell.self, forCellWithReuseIdentifier: "colorCell")
+        return collectionView
+    }()
+    
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Отменить", for: .normal)
@@ -112,6 +145,7 @@ final class NewHabitController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
         button.layer.cornerRadius = 16
+        button.isEnabled = false
         button.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
         return button
     }()
@@ -141,27 +175,66 @@ final class NewHabitController: UIViewController {
     private func configureView() {
         view.backgroundColor = .ypWhite
         
-        view.addSubviews([titleLabel, trackerNameTextField, tableView, buttonsStackView])
+        view.addSubviews([scrollView])
+        contentView.addSubviews([titleLabel, trackerNameTextField, tableView, colorAndEmojiCollectionView, buttonsStackView])
+        scrollView.addSubviews([contentView])
         
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
-            trackerNameTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            trackerNameTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
+            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
             
             tableView.topAnchor.constraint(equalTo: trackerNameTextField.bottomAnchor, constant: 24),
-            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            tableView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            tableView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             tableView.heightAnchor.constraint(equalToConstant: CGFloat(habitType.countOfCells * 75)),
             
-            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            colorAndEmojiCollectionView.topAnchor.constraint(equalTo: tableView.bottomAnchor, constant: 24),
+            colorAndEmojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            colorAndEmojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            colorAndEmojiCollectionView.heightAnchor.constraint(equalToConstant: 520),
+            
+            buttonsStackView.topAnchor.constraint(equalTo: colorAndEmojiCollectionView.bottomAnchor, constant: 16),
+            buttonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            buttonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            buttonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
+    }
+    
+    private func isReadyToSave(text: String?) -> Bool {
+        guard let text,
+              !text.isEmpty,
+              text.count <= 38,
+              let color,
+              let emoji
+        else { return false }
+        switch habitType {
+        case .habit:
+            return chosenDays.rawValue != 0
+        case .event:
+            return true
+        }
+    }
+    
+    func updateSaveButton() {
+        createButton.isEnabled = isReadyToSave(text: trackerNameTextField.text)
+        createButton.backgroundColor = isReadyToSave(text: trackerNameTextField.text) ? .ypBlack : .ypGrey
     }
     
     @objc private func cancelButtonTapped() {
@@ -171,16 +244,20 @@ final class NewHabitController: UIViewController {
     @objc private func saveButtonTapped() {
         guard let name = trackerNameTextField.text,
               !name.isEmpty,
-              let delegate
+              let delegate,
+              let color,
+              let emoji
         else { return }
         let tracker = Tracker(
             id: UUID(),
             name: name,
             color: color,
             emoji: emoji,
-            schedule: schedule
+            isHabit: isHabit,
+            schedule: chosenDays,
+            date: dateForEvent
         )
-        delegate.didCreateNewHabit(record: tracker)
+        delegate.didCreateNewHabit(tracker: tracker)
         dismiss(animated: true, completion: nil)
     }
 }
@@ -248,7 +325,7 @@ extension NewHabitController: UITableViewDataSource {
 }
 
 extension NewHabitController: ScheduleDelegate {
-    func daysWasChosen(_ days: [Weekday]) {
+    func daysWasChosen(_ days: Weekdays) {
         self.chosenDays = days
         var shortNamesOfDays = ""
         for day in chosenDays {
@@ -260,7 +337,7 @@ extension NewHabitController: ScheduleDelegate {
         }
         scheduleCell.detailTextLabel?.text = shortNamesOfDays
         if !chosenDays.isEmpty {
-            createButton.backgroundColor = .ypBlack
+            updateSaveButton()
         }
     }
 }
@@ -273,16 +350,11 @@ extension NewHabitController: UITextFieldDelegate {
     ) -> Bool {
         let currentText = textField.text ?? ""
         guard let stringRange = Range(range, in: currentText) else { return false }
-        let length = currentText.replacingCharacters(in: stringRange, with: string).count
-        switch habitType {
-        case .habit:
-            let isReadyToCreate = length > 0 && !chosenDays.isEmpty
-            createButton.backgroundColor = isReadyToCreate ? .ypBlack : .ypGrey
-        case .event:
-            let isReadyToCreate = length > 0
-            createButton.backgroundColor = isReadyToCreate ? .ypBlack : .ypGrey
-        }
-        return length <= 38
+        let text = currentText.replacingCharacters(in: stringRange, with: string)
+        let isReady = isReadyToSave(text: text)
+        createButton.backgroundColor = isReady ? .ypBlack : .ypGrey
+        createButton.isEnabled = isReady
+        return text.count <= 38
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
