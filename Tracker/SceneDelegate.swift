@@ -17,7 +17,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = TabBarViewController()
+        if OnboardingHelper.shared.isOnboarded {
+            window?.rootViewController = TabBarViewController()
+        } else {
+            let pageViewController = OnboardingController(
+                transitionStyle: .scroll,
+                navigationOrientation: .horizontal,
+                options: nil
+            )
+            window?.rootViewController = pageViewController
+        }
         window?.makeKeyAndVisible()
     }
 

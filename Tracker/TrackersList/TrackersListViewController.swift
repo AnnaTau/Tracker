@@ -24,29 +24,11 @@ final class TrackersListViewController: UIViewController {
         cellSpacing: 9
     )
     
-    private let placeHolderImage: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "Empty Trackers List"))
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-    
-    private let placeHolderLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Что будем отслеживать?"
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        return label
-    }()
-    
-    private lazy var placeHolder: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [placeHolderImage, placeHolderLabel])
-        stackView.addSubview(placeHolderImage)
-        stackView.addSubview(placeHolderLabel)
-        stackView.axis = .vertical
-        stackView.spacing = 8
-        stackView.alignment = .center
-        stackView.distribution = .fillProportionally
-        return stackView
+    private let placeholder: PlaceholderView = {
+        let view = PlaceholderView()
+        view.setText(text: "Что будем отслеживать?")
+        view.isHidden = true
+        return view
     }()
     
     private lazy var trackerCollectionView: UICollectionView = {
@@ -81,23 +63,17 @@ final class TrackersListViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.searchController = UISearchController()
 
-        view.addSubviews([placeHolder, trackerCollectionView])
+        view.addSubviews([placeholder, trackerCollectionView])
         addConstraints()
-        
-        //TODO заглушка для категорий
-        trackerCategoryStore.addCategory("Важное")
         configureStore()
     }
     
     private func addConstraints() {
         NSLayoutConstraint.activate([
-            placeHolderImage.widthAnchor.constraint(equalToConstant: 80),
-            placeHolderImage.heightAnchor.constraint(equalToConstant: 80),
-            
-            placeHolder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            placeHolder.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            placeHolder.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            placeHolder.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            placeholder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholder.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            placeholder.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            placeholder.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
             datePicker.widthAnchor.constraint(equalToConstant: 120),
             
@@ -116,7 +92,7 @@ final class TrackersListViewController: UIViewController {
             if let trackersViewModel = self.collectionHelper {
                 let isHidden = trackersViewModel.numberOfSections() > 0
                 self.trackerCollectionView.isHidden = !isHidden
-                self.placeHolder.isHidden = isHidden
+                self.placeholder.isHidden = isHidden
             }
         }
     }
@@ -131,7 +107,7 @@ final class TrackersListViewController: UIViewController {
             self.trackerCollectionView.reloadData()
             let isHidden = numberOfSections > 0
             self.trackerCollectionView.isHidden = !isHidden
-            self.placeHolder.isHidden = isHidden
+            self.placeholder.isHidden = isHidden
         }
         dismiss(animated: true)
     }
@@ -163,12 +139,8 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
 }
 
 extension TrackersListViewController: NewHabitDelegate {
-    func didCreateNewHabit(tracker: Tracker) {
-        guard
-            let category = trackerCategoryStore.fetchAllCategories().first,
-            let name = category
-        else { return }
-        trackerStore.addTracker(tracker: tracker, category: name)
+    func didCreateNewHabit(tracker: Tracker, category: String) {
+        trackerStore.addTracker(tracker: tracker, category: category)
     }
 }
 
@@ -306,7 +278,7 @@ extension TrackersListViewController: TrackerStoreDelegate {
             if let trackersViewModel = self.collectionHelper {
                 let isHidden = trackersViewModel.numberOfSections() > 0
                 self.trackerCollectionView.isHidden = !isHidden
-                self.placeHolder.isHidden = isHidden
+                self.placeholder.isHidden = isHidden
             }
         }
         trackerCollectionView.performBatchUpdates({
