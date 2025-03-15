@@ -30,7 +30,7 @@ final class ChoseTypeViewController: UIViewController {
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
-        button.addTarget(self, action: #selector(habitButtonTapped(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(habitButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -41,7 +41,7 @@ final class ChoseTypeViewController: UIViewController {
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
-        button.addTarget(self, action: #selector(irregularButtonTapped(_:)), for: .touchUpInside)
+        button.addTarget(self, action: #selector(irregularButtonTapped), for: .touchUpInside)
         return button
     }()
     

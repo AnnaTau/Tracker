@@ -110,11 +110,11 @@ final class CategoriesViewController: UIViewController {
 
 extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel?.trackerCategories.count ?? 0
+        viewModel?.trackerCategories.count ?? 0
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        1
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -131,7 +131,6 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
             maskLayer.path = maskPath.cgPath
             cell.layer.mask = maskLayer
         } else {
-            cell.layer.mask = nil
             cell.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         }
     }
@@ -150,7 +149,7 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 75
+        75
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

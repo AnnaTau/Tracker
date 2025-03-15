@@ -24,7 +24,7 @@ final class TrackerCategoryStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        self.fetchedResultsController = controller
+        fetchedResultsController = controller
         try? controller.performFetch()
         return controller
     }()

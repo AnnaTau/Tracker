@@ -102,8 +102,7 @@ final class TrackersListViewController: UIViewController {
         collectionHelper?.fetchTrackers(for: currentDate){ [weak self] in
             guard let self,
                   let numberOfSections = collectionHelper?.numberOfSections()
-            else {return
-            }
+            else { return }
             self.trackerCollectionView.reloadData()
             let isHidden = numberOfSections > 0
             self.trackerCollectionView.isHidden = !isHidden
@@ -152,7 +151,9 @@ extension TrackersListViewController: TrackerCollectionCellDelegate {
             trackerRecordStore.deleteRecord(record)
         } else {
             trackerRecordStore.addRecord(record)
-            if !tracker.isHabit { return 1 }
+            if !tracker.isHabit {
+                return 1
+            }
         }
         return trackerRecordStore.findRecordsBy(trackerId: tracker.id).count
     }
@@ -164,11 +165,11 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        return collectionHelper?.numberOfRowsInSection(section) ?? 0
+        collectionHelper?.numberOfRowsInSection(section) ?? 0
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return collectionHelper?.numberOfSections() ?? 0
+        collectionHelper?.numberOfSections() ?? 0
     }
     
     func collectionView(
@@ -234,8 +235,7 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     ) -> CGSize {
         let availableWidth = collectionView.frame.width - params.paddingWidth
         let cellWidth =  availableWidth / CGFloat(params.cellCount)
-        return CGSize(width: cellWidth,
-                      height: 148)
+        return CGSize(width: cellWidth, height: 148)
     }
     
     func collectionView(
@@ -267,14 +267,14 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 50)
+        CGSize(width: collectionView.frame.width, height: 50)
     }
 }
 
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(didChangeContentWith update: IndexUpdate) {
         collectionHelper?.fetchTrackers(for: currentDate) { [weak self] in
-            guard let self else {return }
+            guard let self else { return }
             if let trackersViewModel = self.collectionHelper {
                 let isHidden = trackersViewModel.numberOfSections() > 0
                 self.trackerCollectionView.isHidden = !isHidden

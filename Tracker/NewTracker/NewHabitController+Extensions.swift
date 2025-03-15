@@ -12,7 +12,7 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
         _ collectionView: UICollectionView,
         numberOfItemsInSection section: Int
     ) -> Int {
-        switch self.sections[section] {
+        switch sections[section] {
         case .emojis:
             return CollectionData.emojis.count
         case .colors:
@@ -46,7 +46,7 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return self.sections.count
+        sections.count
     }
     
     func collectionView(
@@ -61,7 +61,7 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
                 for: indexPath
             )
             let label = UILabel(frame: headerView.bounds)
-            switch self.sections[indexPath.section] {
+            switch sections[indexPath.section] {
             case .colors:
                 label.text = "Цвет"
             case .emojis:
@@ -90,7 +90,7 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         referenceSizeForHeaderInSection section: Int
     ) -> CGSize {
-        return CGSize(width: collectionView.frame.width, height: 34)
+        CGSize(width: collectionView.frame.width, height: 34)
     }
     
     func collectionView(
@@ -98,7 +98,7 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         sizeForItemAt indexPath: IndexPath
     ) -> CGSize {
-        return CGSize(
+        CGSize(
             width: (collectionView.bounds.width - (params.leftOrRightInset * 2) - (params.cellSpacing * (params.itemsInRow - 1)))/params.itemsInRow,
             height: 52
         )
@@ -108,7 +108,7 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
         _ collectionView: UICollectionView,
         layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int
     ) -> CGFloat {
-        return params.cellSpacing
+        params.cellSpacing
     }
     
     func collectionView(
@@ -116,7 +116,12 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
         layout collectionViewLayout: UICollectionViewLayout,
         insetForSectionAt section: Int
     ) -> UIEdgeInsets {
-        return UIEdgeInsets(top: params.topOrBottomInset, left: params.leftOrRightInset, bottom: params.topOrBottomInset, right: params.leftOrRightInset)
+        UIEdgeInsets(
+            top: params.topOrBottomInset,
+            left: params.leftOrRightInset,
+            bottom: params.topOrBottomInset,
+            right: params.leftOrRightInset
+        )
     }
     
     func collectionView(

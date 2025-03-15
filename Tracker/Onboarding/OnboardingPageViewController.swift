@@ -9,13 +9,12 @@ import UIKit
 
 final class OnboardingPageViewController: UIPageViewController {
     private var imageName: String = ""
-    private var labelText: String = ""
+    private var text: String = ""
     private var pageControlCurrentPage: Int = 0
     private var pageControlNumberOfPages: Int = 2
     
     private lazy var imageView: UIImageView = {
-        let imageView = UIImageView()
-        return imageView
+        UIImageView()
     }()
     
     private lazy var label: UILabel = {
@@ -51,8 +50,8 @@ final class OnboardingPageViewController: UIPageViewController {
     }
     
     func configure(backgroundImageName: String, labelText: String) {
-        self.imageName = backgroundImageName
-        self.labelText = labelText
+        imageName = backgroundImageName
+        text = labelText
         imageView.image = UIImage(named: backgroundImageName)
         label.text = labelText
         pageControl.currentPage = pageControlCurrentPage

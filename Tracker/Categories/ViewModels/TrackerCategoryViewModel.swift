@@ -25,7 +25,7 @@ final class TrackerCategoryViewModel {
     }
     
     func fetchTrackerCategories() {
-        self.trackerCategories = trackerCategoryStore.fetchAllCategories()
+        trackerCategories = trackerCategoryStore.fetchAllCategories()
     }
 }
 

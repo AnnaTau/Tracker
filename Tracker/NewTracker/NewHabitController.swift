@@ -293,7 +293,7 @@ extension NewHabitController: UITableViewDelegate {
         _ tableView: UITableView,
         heightForRowAt indexPath: IndexPath
     ) -> CGFloat {
-        return 75
+        75
     }
     
     func tableView(
@@ -311,14 +311,14 @@ extension NewHabitController: UITableViewDelegate {
 
 extension NewHabitController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        1
     }
     
     func tableView(
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        return habitType.countOfCells
+        habitType.countOfCells
     }
     
     func tableView(
@@ -374,7 +374,7 @@ extension NewHabitController: UITextFieldDelegate {
 
 extension NewHabitController: CategoriesViewDelegate {
     func didSelectCategory(category: String) {
-        self.selectedCategory = category
+        selectedCategory = category
         categoryCell.detailTextLabel?.text = category
         updateSaveButton()
     }

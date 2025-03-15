@@ -12,8 +12,8 @@ final class OnboardingHelper {
     private let defaults = UserDefaults.standard
     
     var isOnboarded: Bool {
-        get { UserDefaults.standard.bool(forKey: SettingsKey.isOnboarded.rawValue) }
-        set { UserDefaults.standard.set(newValue, forKey: SettingsKey.isOnboarded.rawValue) }
+        get { defaults.bool(forKey: SettingsKey.isOnboarded.rawValue) }
+        set { defaults.set(newValue, forKey: SettingsKey.isOnboarded.rawValue) }
     }
     
     private init() {}

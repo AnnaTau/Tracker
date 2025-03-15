@@ -17,7 +17,7 @@ final class TrackerCollectionHelper {
     }
     
     func numberOfSections() -> Int {
-        return trackerCategories.count
+        trackerCategories.count
     }
     
     func titleForSection(_ section: Int) -> String? {
