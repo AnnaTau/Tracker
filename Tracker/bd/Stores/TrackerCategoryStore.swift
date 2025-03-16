@@ -12,6 +12,7 @@ final class TrackerCategoryStore: NSObject {
     static let shared = TrackerCategoryStore()
     private let context: NSManagedObjectContext
     private let trackerStore = TrackerStore.shared
+    var delegate: StoreDelegate?
     
     private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData> = {
         let fetchRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
@@ -23,7 +24,7 @@ final class TrackerCategoryStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-        self.fetchedResultsController = controller
+        fetchedResultsController = controller
         try? controller.performFetch()
         return controller
     }()
@@ -61,6 +62,6 @@ final class TrackerCategoryStore: NSObject {
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<any NSFetchRequestResult>) {
-        //  TODO: - добавить обновление таблицы при добавлении новой категории
+        delegate?.storeDidUpdate()
     }
 }

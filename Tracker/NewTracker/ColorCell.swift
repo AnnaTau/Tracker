@@ -13,7 +13,6 @@ final class ColorCell: UICollectionViewCell {
     }
     private lazy var colorCell: UIView = {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 40))
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.layer.cornerRadius = 8
         return view
     }()

@@ -8,13 +8,14 @@
 import UIKit
 
 protocol NewHabitDelegate: AnyObject {
-    func didCreateNewHabit(tracker: Tracker)
+    func didCreateNewHabit(tracker: Tracker, category: String)
 }
 
 final class NewHabitController: UIViewController {
     var delegate: NewHabitDelegate?
     private var chosenDays: Weekdays = Weekdays()
     private let habitType: HabitType
+    private var selectedCategory: String?
     var emoji: String?
     var color: UIColor?
     var emojiIndexPath: IndexPath?
@@ -64,11 +65,10 @@ final class NewHabitController: UIViewController {
         textField.placeholder = "Введите название трекера"
         textField.layer.cornerRadius = 16
         textField.backgroundColor = .ypLightGrey
-        let leftIndent = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
-        textField.leftView = leftIndent
+        let indent = UIView(frame: CGRect(x: 0, y: 0, width: 32, height: textField.frame.height))
+        textField.leftView = indent
         textField.leftViewMode = .always
-        let rightIndent = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
-        textField.rightView = rightIndent
+        textField.rightView = indent
         textField.rightViewMode = .always
         return textField
     }()
@@ -222,7 +222,8 @@ final class NewHabitController: UIViewController {
               !text.isEmpty,
               text.count <= 38,
               let color,
-              let emoji
+              let emoji,
+              let selectedCategory
         else { return false }
         switch habitType {
         case .habit:
@@ -246,8 +247,12 @@ final class NewHabitController: UIViewController {
               !name.isEmpty,
               let delegate,
               let color,
-              let emoji
-        else { return }
+              let emoji,
+              let selectedCategory
+        else {
+            print("Error saving new habit")
+            return
+        }
         let tracker = Tracker(
             id: UUID(),
             name: name,
@@ -257,7 +262,7 @@ final class NewHabitController: UIViewController {
             schedule: chosenDays,
             date: dateForEvent
         )
-        delegate.didCreateNewHabit(tracker: tracker)
+        delegate.didCreateNewHabit(tracker: tracker, category: selectedCategory)
         dismiss(animated: true, completion: nil)
     }
 }
@@ -270,7 +275,11 @@ extension NewHabitController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         
         if indexPath.row == 0 {
-            //TODO тут будет экран создания категорий
+            let categoryViewController = CategoriesViewController()
+            categoryViewController.delegate = self
+            categoryViewController.selectedCategory = selectedCategory
+            categoryViewController.modalPresentationStyle = .pageSheet
+            present(categoryViewController, animated: true, completion: nil)
         } else {
             let scheduleViewController = ScheduleController()
             scheduleViewController.chosenDays = chosenDays
@@ -284,7 +293,7 @@ extension NewHabitController: UITableViewDelegate {
         _ tableView: UITableView,
         heightForRowAt indexPath: IndexPath
     ) -> CGFloat {
-        return 75
+        75
     }
     
     func tableView(
@@ -302,14 +311,14 @@ extension NewHabitController: UITableViewDelegate {
 
 extension NewHabitController: UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        1
     }
     
     func tableView(
         _ tableView: UITableView,
         numberOfRowsInSection section: Int
     ) -> Int {
-        return habitType.countOfCells
+        habitType.countOfCells
     }
     
     func tableView(
@@ -360,5 +369,13 @@ extension NewHabitController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
+    }
+}
+
+extension NewHabitController: CategoriesViewDelegate {
+    func didSelectCategory(category: String) {
+        selectedCategory = category
+        categoryCell.detailTextLabel?.text = category
+        updateSaveButton()
     }
 }
