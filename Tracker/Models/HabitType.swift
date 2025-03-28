@@ -13,8 +13,8 @@ enum HabitType {
 
     var value: String {
         return switch self {
-        case .habit: "Новая привычка"
-        case .event: "Новое нерегулярное событие"
+        case .habit: NSLocalizedString("tracker.event_type.habit", comment: "")
+        case .event: NSLocalizedString("tracker.event_type.event", comment: "")
         }
     }
 

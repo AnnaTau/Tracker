@@ -16,14 +16,14 @@ final class StatisticsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationItem.title = "Cтатистика"
+        navigationItem.title = NSLocalizedString("statistics.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
         
         let emptyListImage = UIImage(named: "Empty Statistics")
         emptyListView.image = emptyListImage
         emptyListView.translatesAutoresizingMaskIntoConstraints = false
         
-        emptyListLabel.text = "Анализировать пока нечего"
+        emptyListLabel.text = NSLocalizedString("statistics.placeholder.text", comment: "")
         
         view.addSubviews([emptyListView, emptyListLabel])
         addConstrains()

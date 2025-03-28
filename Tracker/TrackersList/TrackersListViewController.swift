@@ -26,7 +26,7 @@ final class TrackersListViewController: UIViewController {
     
     private let placeholder: PlaceholderView = {
         let view = PlaceholderView()
-        view.setText(text: "Что будем отслеживать?")
+        view.setText(text: NSLocalizedString("trackers.placeholder.text", comment: ""))
         view.isHidden = true
         return view
     }()
@@ -54,12 +54,12 @@ final class TrackersListViewController: UIViewController {
         
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
-        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.locale = Locale.current
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addTrackerButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
-        navigationItem.title = "Трекеры"
+        navigationItem.title = NSLocalizedString("trackers.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.searchController = UISearchController()
 
@@ -203,7 +203,6 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
                 withReuseIdentifier: "header",
                 for: indexPath
             )
-            headerView.translatesAutoresizingMaskIntoConstraints = false
             let label = UILabel(frame: headerView.bounds)
             label.translatesAutoresizingMaskIntoConstraints = false
             guard let sectionTitle = collectionHelper?.titleForSection(indexPath.section) else {
@@ -216,7 +215,6 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             headerView.addSubview(label)
             
             NSLayoutConstraint.activate([
-                headerView.heightAnchor.constraint(equalToConstant: 54),
                 label.leadingAnchor.constraint(equalTo: headerView.leadingAnchor, constant: 28),
                 label.topAnchor.constraint(equalTo: headerView.topAnchor, constant: 24),
             ])
@@ -235,7 +233,7 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
     ) -> CGSize {
         let availableWidth = collectionView.frame.width - params.paddingWidth
         let cellWidth =  availableWidth / CGFloat(params.cellCount)
-        return CGSize(width: cellWidth, height: 148)
+        return CGSize(width: cellWidth, height: cellWidth * 0.8)
     }
     
     func collectionView(

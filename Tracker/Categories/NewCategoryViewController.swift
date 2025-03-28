@@ -16,7 +16,7 @@ final class NewCategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        label.text = NSLocalizedString("new_category.title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         return label
@@ -24,7 +24,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var categoryTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = NSLocalizedString("new_category.placeholder", comment: "")
         textField.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         textField.backgroundColor = .ypLightGrey
         textField.layer.cornerRadius = 16
@@ -42,7 +42,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("new_category.button.done", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
         button.isEnabled = false

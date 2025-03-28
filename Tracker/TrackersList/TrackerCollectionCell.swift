@@ -77,7 +77,6 @@ final class TrackerCollectionCell: UICollectionViewCell {
             cellView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            cellView.heightAnchor.constraint(equalToConstant: 90),
             
             emojiLabel.leadingAnchor.constraint(equalTo: cellView.leadingAnchor, constant: 12),
             emojiLabel.topAnchor.constraint(equalTo: cellView.topAnchor, constant: 12),
@@ -136,18 +135,10 @@ final class TrackerCollectionCell: UICollectionViewCell {
     }
     
     private func formatDaysText(_ count: Int) -> String {
-        let lastNumber = count % 10
-        let lastTwoNumbers = count % 100
-        
-        if lastTwoNumbers >= 11 && lastTwoNumbers <= 19 {
-            return "\(count) дней"
-        } else if lastNumber == 1 {
-            return "\(count) день"
-        } else if lastNumber >= 2 && lastNumber <= 4 {
-            return "\(count) дня"
-        } else {
-            return "\(count) дней"
-        }
+        return String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: "Number of days"),
+            count
+        )
     }
     
 }

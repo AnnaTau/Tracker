@@ -62,10 +62,10 @@ final class NewHabitController: UIViewController {
     private lazy var trackerNameTextField: UITextField = {
         let textField = UITextField()
         textField.delegate = self
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = NSLocalizedString("tracker.placeholder.name", comment: "")
         textField.layer.cornerRadius = 16
         textField.backgroundColor = .ypLightGrey
-        let indent = UIView(frame: CGRect(x: 0, y: 0, width: 32, height: textField.frame.height))
+        let indent = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = indent
         textField.leftViewMode = .always
         textField.rightView = indent
@@ -87,7 +87,7 @@ final class NewHabitController: UIViewController {
     
     private let categoryCell: UITableViewCell = {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        cell.textLabel?.text = "Категория"
+        cell.textLabel?.text = NSLocalizedString("tracker.title.category", comment: "")
         cell.accessoryType = .disclosureIndicator
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         cell.backgroundColor = .ypLightGrey
@@ -99,7 +99,7 @@ final class NewHabitController: UIViewController {
     
     private let scheduleCell: UITableViewCell = {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        cell.textLabel?.text = "Расписание"
+        cell.textLabel?.text = NSLocalizedString("tracker.title.schedule", comment: "")
         cell.accessoryType = .disclosureIndicator
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         cell.backgroundColor = .ypLightGrey
@@ -128,7 +128,7 @@ final class NewHabitController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(NSLocalizedString("tracker.button.cancel", comment: ""), for: .normal)
         button.setTitleColor(.ypRed, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
@@ -140,7 +140,7 @@ final class NewHabitController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
+        button.setTitle(NSLocalizedString("tracker.button.create", comment: ""), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
@@ -194,7 +194,7 @@ final class NewHabitController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
             titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
+            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
             trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
@@ -337,11 +337,15 @@ extension NewHabitController: ScheduleDelegate {
     func daysWasChosen(_ days: Weekdays) {
         self.chosenDays = days
         var shortNamesOfDays = ""
-        for day in chosenDays {
-            if shortNamesOfDays != "" {
-                shortNamesOfDays = shortNamesOfDays + ", " + day.shortName
-            } else {
-                shortNamesOfDays = day.shortName
+        if chosenDays == .all {
+            shortNamesOfDays = NSLocalizedString("weekdays.short.all", comment: "")
+        } else {
+            for day in chosenDays {
+                if shortNamesOfDays != "" {
+                    shortNamesOfDays = shortNamesOfDays + ", " + day.shortName
+                } else {
+                    shortNamesOfDays = day.shortName
+                }
             }
         }
         scheduleCell.detailTextLabel?.text = shortNamesOfDays

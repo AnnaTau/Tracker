@@ -23,12 +23,12 @@ final class OnboardingController: UIPageViewController {
         let firstPage = OnboardingPageViewController()
         firstPage.configure(
             backgroundImageName: "OnboardingBackground1",
-            labelText: "Отслеживайте только то, что хотите"
+            labelText: NSLocalizedString("onboarding.first.title", comment: "")
         )
         let secondPage = OnboardingPageViewController()
         secondPage.configure(
             backgroundImageName: "OnboardingBackground2",
-            labelText: "Даже если это не литры воды и йога"
+            labelText: NSLocalizedString("onboarding.second.title", comment: "")
         )
         return [firstPage, secondPage]
     }

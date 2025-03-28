@@ -63,7 +63,7 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
             let label = UILabel(frame: headerView.bounds)
             switch sections[indexPath.section] {
             case .colors:
-                label.text = "Цвет"
+                label.text = NSLocalizedString("tracker.color.text", comment: "")
             case .emojis:
                 label.text = "Emoji"
             }
