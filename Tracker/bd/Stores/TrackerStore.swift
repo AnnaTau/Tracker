@@ -57,6 +57,19 @@ final class TrackerStore: NSObject {
         return trackerCategories
     }
     
+    func fetchTrackers(for searchString: String) -> [TrackerCategory] {
+        updateFetchRequest(searchString: searchString)
+        guard let sections = fetchedResultsController.sections else { return [] }
+        var trackerCategories: [TrackerCategory] = []
+        for section in sections {
+            guard let objects = section.objects as? [TrackerCoreData] else { continue }
+            let trackers: [Tracker] = objects.compactMap { getTracker(from: $0) }
+            let trackerCategory = TrackerCategory(name: section.name, trackers: trackers)
+            trackerCategories.append(trackerCategory)
+        }
+        return trackerCategories
+    }
+    
     func addTracker(tracker: Tracker, category: String) {
         guard let categoryCoreData = findCategory(by: category) else {
             preconditionFailure("Failure with adding tracker")
@@ -126,9 +139,24 @@ final class TrackerStore: NSObject {
         return finalPredicate
     }
     
+    private func getPredicateFor(searchString: String) -> NSPredicate {
+        let predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchString)
+        return predicate
+    }
+    
     private func updateFetchRequest(date: Date) {
         let fetchRequest = fetchedResultsController.fetchRequest
         fetchRequest.predicate = getPredicateFor(date: date)
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            preconditionFailure("Failed to fetch filtered results")
+        }
+    }
+    
+    private func updateFetchRequest(searchString: String) {
+        let fetchRequest = fetchedResultsController.fetchRequest
+        fetchRequest.predicate = getPredicateFor(searchString: searchString)
         do {
             try fetchedResultsController.performFetch()
         } catch {

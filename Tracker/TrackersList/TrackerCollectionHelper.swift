@@ -16,6 +16,11 @@ final class TrackerCollectionHelper {
         completion()
     }
     
+    func fetchTrackers(for searchString: String, completion:() -> Void) {
+        trackerCategories = trackerStore.fetchTrackers(for: searchString)
+        completion()
+    }
+    
     func numberOfSections() -> Int {
         trackerCategories.count
     }

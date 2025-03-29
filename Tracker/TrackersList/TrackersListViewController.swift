@@ -12,9 +12,8 @@ final class TrackersListViewController: UIViewController {
     private let trackerRecordStore = TrackerRecordStore.shared
     private let trackerCategoryStore = TrackerCategoryStore.shared
     private var collectionHelper: TrackerCollectionHelper?
-    private lazy var currentDate: Date = {
-        Date().startOfDay()
-    }()
+    private lazy var currentDate: Date = { Date().startOfDay() }()
+    
     private let addTrackerButton: UIButton = .init()
     private let datePicker: UIDatePicker = .init()
     private let params: TrackersLayoutParams = TrackersLayoutParams(
@@ -27,6 +26,14 @@ final class TrackersListViewController: UIViewController {
     private let placeholder: PlaceholderView = {
         let view = PlaceholderView()
         view.setText(text: NSLocalizedString("trackers.placeholder.text", comment: ""))
+        view.isHidden = true
+        return view
+    }()
+    
+    private let placeholderSearch: PlaceholderView = {
+        let view = PlaceholderView()
+        view.setText(text: NSLocalizedString("trackers.search_placeholder.text", comment: ""))
+        view.setImage(byName: "Nothing found")
         view.isHidden = true
         return view
     }()
@@ -55,15 +62,20 @@ final class TrackersListViewController: UIViewController {
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.locale = Locale.current
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: addTrackerButton)
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         navigationItem.title = NSLocalizedString("trackers.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.searchController = UISearchController()
+        
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        navigationItem.searchController = searchController
+        searchController.searchBar.delegate = self
 
-        view.addSubviews([placeholder, trackerCollectionView])
+        view.addSubviews([placeholder, placeholderSearch, trackerCollectionView])
         addConstraints()
         configureStore()
     }
@@ -74,6 +86,11 @@ final class TrackersListViewController: UIViewController {
             placeholder.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             placeholder.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             placeholder.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            placeholderSearch.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholderSearch.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            placeholderSearch.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            placeholderSearch.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
             datePicker.widthAnchor.constraint(equalToConstant: 120),
             
@@ -87,19 +104,11 @@ final class TrackersListViewController: UIViewController {
     private func configureStore() {
         trackerStore.delegate = self
         collectionHelper = TrackerCollectionHelper()
-        collectionHelper?.fetchTrackers(for: currentDate) { [weak self] in
-            guard let self else { return }
-            if let trackersViewModel = self.collectionHelper {
-                let isHidden = trackersViewModel.numberOfSections() > 0
-                self.trackerCollectionView.isHidden = !isHidden
-                self.placeholder.isHidden = isHidden
-            }
-        }
+        fetchTrackers(for: currentDate)
     }
     
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
-        currentDate = sender.date.startOfDay()
-        collectionHelper?.fetchTrackers(for: currentDate){ [weak self] in
+    private func fetchTrackers(for date: Date) {
+        collectionHelper?.fetchTrackers(for: date){ [weak self] in
             guard let self,
                   let numberOfSections = collectionHelper?.numberOfSections()
             else { return }
@@ -107,7 +116,25 @@ final class TrackersListViewController: UIViewController {
             let isHidden = numberOfSections > 0
             self.trackerCollectionView.isHidden = !isHidden
             self.placeholder.isHidden = isHidden
+            self.placeholderSearch.isHidden = isHidden
         }
+    }
+    
+    private func fetchTrackers(for searchString: String) {
+        collectionHelper?.fetchTrackers(for: searchString){ [weak self] in
+            guard let self,
+                  let numberOfSections = collectionHelper?.numberOfSections()
+            else { return }
+            self.trackerCollectionView.reloadData()
+            let isHidden = numberOfSections > 0
+            self.trackerCollectionView.isHidden = !isHidden
+            self.placeholderSearch.isHidden = isHidden
+        }
+    }
+    
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+        currentDate = sender.date.startOfDay()
+        fetchTrackers(for: currentDate)
         dismiss(animated: true)
     }
     
@@ -212,6 +239,7 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             label.textAlignment = .left
             label.textColor = .ypBlack
             label.font = UIFont.boldSystemFont(ofSize: 19)
+            headerView.subviews.forEach { $0.removeFromSuperview() }
             headerView.addSubview(label)
             
             NSLayoutConstraint.activate([
@@ -302,5 +330,20 @@ extension TrackersListViewController: TrackerStoreDelegate {
                 trackerCollectionView.moveItem(at: move.from, to: move.to)
             }
         }, completion: nil)
+    }
+}
+
+extension TrackersListViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if let searchText = searchBar.text, !searchText.isEmpty {
+            fetchTrackers(for: searchText)
+        } else {
+            fetchTrackers(for: currentDate)
+        }
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.text = ""
+        fetchTrackers(for: currentDate)
     }
 }
