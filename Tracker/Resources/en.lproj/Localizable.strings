@@ -14,7 +14,15 @@
 "trackers.title" = "Trackers";
 "trackers.placeholder.text" = "What shall we track?";
 "trackers.search_placeholder.text" = "Nothing found";
+"trackers.filter_button.text" = "Filters";
 "delete.alert.title" = "Are you sure you want to delete the tracker?";
+
+//MARK: - Filters
+"filters.title" = "Filters";
+"filters.all" = "All Trackers";
+"filters.today" = "Trackers for Today";
+"filters.completed" = "Completed";
+"filters.uncompleted" = "Not Completed";
 
 // MARK: - Schedule
 "schedule.title" = "Schedule";

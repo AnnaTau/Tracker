@@ -9,6 +9,7 @@ import Foundation
 
 final class TrackerCollectionHelper {
     private let trackerStore = TrackerStore.shared
+    private let trackerRecordStore = TrackerRecordStore.shared
     private var trackerCategories: [TrackerCategory] = []
     
     func fetchTrackers(for date: Date, completion:() -> Void ) {
@@ -18,6 +19,22 @@ final class TrackerCollectionHelper {
     
     func fetchTrackers(for searchString: String, completion:() -> Void) {
         trackerCategories = trackerStore.fetchTrackers(for: searchString)
+        completion()
+    }
+    
+    func fetchTrackers(for date: Date, isDone: Bool, completion:() -> Void) {
+        trackerCategories = trackerStore.fetchTrackers(for: date)
+        var filteredCategories: [TrackerCategory] = []
+        for trackerCategory in trackerCategories {
+            let trackers = trackerCategory.trackers.filter { tracker in
+                let trackerIsDone = trackerRecordStore.findRecordBy(date: date, trackerId: tracker.id) != nil
+                return isDone == trackerIsDone
+            }
+            if trackers.count > 0 {
+                filteredCategories.append(TrackerCategory(name: trackerCategory.name, trackers: trackers))
+            }
+            trackerCategories = filteredCategories
+        }
         completion()
     }
     

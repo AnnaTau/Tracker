@@ -13,6 +13,7 @@ final class TrackersListViewController: UIViewController {
     private let trackerCategoryStore = TrackerCategoryStore.shared
     private var collectionHelper: TrackerCollectionHelper?
     private lazy var currentDate: Date = { Date().startOfDay() }()
+    private(set) var currentFilter: Filter = .all
     
     private let addTrackerButton: UIButton = .init()
     private let datePicker: UIDatePicker = .init()
@@ -52,6 +53,18 @@ final class TrackersListViewController: UIViewController {
         return collectionView
     }()
     
+    private lazy var filterButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle(NSLocalizedString("trackers.filter_button.text", comment: ""), for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.backgroundColor = .ypBlue
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .regular)
+        button.layer.cornerRadius = 16
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.addTarget(self, action: #selector(filterButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -75,7 +88,7 @@ final class TrackersListViewController: UIViewController {
         navigationItem.searchController = searchController
         searchController.searchBar.delegate = self
 
-        view.addSubviews([placeholder, placeholderSearch, trackerCollectionView])
+        view.addSubviews([placeholder, placeholderSearch, trackerCollectionView, filterButton])
         addConstraints()
         configureStore()
     }
@@ -97,7 +110,12 @@ final class TrackersListViewController: UIViewController {
             trackerCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             trackerCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             trackerCollectionView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            trackerCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            trackerCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            filterButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            filterButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filterButton.widthAnchor.constraint(equalToConstant: 114),
+            filterButton.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -110,13 +128,28 @@ final class TrackersListViewController: UIViewController {
     private func fetchTrackers(for date: Date) {
         collectionHelper?.fetchTrackers(for: date){ [weak self] in
             guard let self,
+                  let collectionHelper
+            else { return }
+            self.trackerCollectionView.reloadData()
+            let numberOfSections = collectionHelper.numberOfSections()
+            let isHidden = numberOfSections > 0
+            self.trackerCollectionView.isHidden = !isHidden
+            self.placeholder.isHidden = isHidden
+            self.placeholderSearch.isHidden = true
+            self.filterButton.isHidden = !isHidden
+        }
+    }
+    
+    private func fetchTrackers(for date: Date, isDone: Bool) {
+        collectionHelper?.fetchTrackers(for: date, isDone: isDone){ [weak self] in
+            guard let self,
                   let numberOfSections = collectionHelper?.numberOfSections()
             else { return }
             self.trackerCollectionView.reloadData()
             let isHidden = numberOfSections > 0
             self.trackerCollectionView.isHidden = !isHidden
             self.placeholder.isHidden = isHidden
-            self.placeholderSearch.isHidden = isHidden
+            self.placeholderSearch.isHidden = true
         }
     }
     
@@ -129,12 +162,14 @@ final class TrackersListViewController: UIViewController {
             let isHidden = numberOfSections > 0
             self.trackerCollectionView.isHidden = !isHidden
             self.placeholderSearch.isHidden = isHidden
+            self.filterButton.isHidden = true
         }
     }
     
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date.startOfDay()
         fetchTrackers(for: currentDate)
+        currentFilter = .all
         dismiss(animated: true)
     }
     
@@ -146,6 +181,11 @@ final class TrackersListViewController: UIViewController {
         present(choseTypeController, animated: true)
     }
     
+    @objc func filterButtonTapped() {
+        let filtersViewController = FiltersViewController(delegate: self)
+        filtersViewController.modalPresentationStyle = .pageSheet
+        present(filtersViewController, animated: true, completion: nil)
+    }
 }
 
 extension TrackersListViewController: ChoseTypeViewDelegate {
@@ -345,5 +385,23 @@ extension TrackersListViewController: UISearchBarDelegate {
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
         searchBar.text = ""
         fetchTrackers(for: currentDate)
+    }
+}
+
+extension TrackersListViewController: FiltersDelegateProtocol {
+    func didSelectFilter(filter: Filter) {
+        self.currentFilter = filter
+        switch filter {
+        case .today:
+            currentDate = Date().startOfDay()
+            datePicker.date = currentDate
+            fetchTrackers(for: currentDate)
+        case .all:
+            fetchTrackers(for: currentDate)
+        case .completed:
+            fetchTrackers(for: currentDate, isDone: true)
+        case .uncompleted:
+            fetchTrackers(for: currentDate, isDone: false)
+        }
     }
 }

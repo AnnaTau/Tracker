@@ -15,7 +15,15 @@
 "trackers.title" = "Трекеры";
 "trackers.placeholder.text" = "Что будем отслеживать?";
 "trackers.search_placeholder.text" = "Ничего не найдено";
+"trackers.filter_button.text" = "Фильтры";
 "delete.alert.title" = "Уверены, что хотите удалить трекер?";
+
+//MARK: - Filters
+"filters.title" = "Фильтры";
+"filters.all" = "Все трекеры";
+"filters.today" = "Трекеры на сегодня";
+"filters.completed" = "Завершенные";
+"filters.uncompleted" = "Не завершенные";
 
 //MARK: - Schedule
 "schedule.title" = "Расписание";
