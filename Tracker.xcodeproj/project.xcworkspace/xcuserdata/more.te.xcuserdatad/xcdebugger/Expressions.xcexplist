@@ -3,13 +3,10 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "TrackersListViewController.refreshViewForDate(date:):TrackersListViewController.swift">
+         contextName = "TrackerRecordStore.deleteRecord(_:):TrackerRecordStore.swift">
          <PersistentStrings>
             <PersistentString
-               value = "filteredTrackers">
-            </PersistentString>
-            <PersistentString
-               value = "categories[safe: 0]">
+               value = "findRecordsBy(date: dateStart)">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -34,12 +31,21 @@
          contextName = "closure #1 in TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
       </ContextState>
       <ContextState
-         contextName = "TrackerRecordStore.deleteRecord(_:):TrackerRecordStore.swift">
+         contextName = "TrackerCategoryStore.findCategoriesFor(date:):TrackerCategoryStore.swift">
          <PersistentStrings>
             <PersistentString
-               value = "findRecordsBy(date: dateStart)">
+               value = "trackerCoreData.name">
+            </PersistentString>
+            <PersistentString
+               value = "categories.first">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TrackerStore.controllerDidChangeContent(_:):TrackerStore.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.store(didChangeContentWith:):TrackersListViewController.swift">
       </ContextState>
       <ContextState
          contextName = "ColorCell.selectCell():ColorCell.swift">
@@ -56,6 +62,34 @@
                value = "categories">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PersistentService.saveContext():PersistentService.swift">
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.makeContextMenu(for:):TrackersListViewController+ContextMenu.swift">
+      </ContextState>
+      <ContextState
+         contextName = "NewHabitController.configureView():NewHabitController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "colorAndEmojiCollectionView">
+            </PersistentString>
+            <PersistentString
+               value = "colorAndEmojiCollectionView.cellForItem(at: colorIndexPath)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "NewHabitController.__allocating_init(habitType:category:recordsCount:tracker:isEditMode:):NewHabitController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "colorAndEmojiCollectionView.cellForItem(at: colorIndexPath)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "NewHabitController.collectionView(_:didSelectItemAt:):NewHabitController+Extensions.swift">
       </ContextState>
       <ContextState
          contextName = "TrackersListViewController.recordAdded(for:date:):TrackersListViewController.swift">
@@ -80,21 +114,21 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "TrackerCategoryStore.findCategoriesFor(date:):TrackerCategoryStore.swift">
-         <PersistentStrings>
-            <PersistentString
-               value = "trackerCoreData.name">
-            </PersistentString>
-            <PersistentString
-               value = "categories.first">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
          contextName = "TrackersListViewController.collectionView(_:cellForItemAt:):TrackersListViewController.swift">
          <PersistentStrings>
             <PersistentString
                value = "filteredTrackers">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TrackersListViewController.refreshViewForDate(date:):TrackersListViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "filteredTrackers">
+            </PersistentString>
+            <PersistentString
+               value = "categories[safe: 0]">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

@@ -34,6 +34,21 @@ final class TrackerStore: NSObject {
         return fetchedResultsController
     }()
     
+    private lazy var fetchedPinnedController: NSFetchedResultsController<TrackerCoreData> = {
+        let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
+        fetchRequest.predicate = getPredicateForPinned()
+        let fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        fetchedResultsController.delegate = self
+        try? fetchedResultsController.performFetch()
+        return fetchedResultsController
+    }()
+    
     // MARK: - Inits
     convenience override init() {
         let context = PersistentService.shared.context
@@ -46,8 +61,17 @@ final class TrackerStore: NSObject {
     
     func fetchTrackers(for date: Date) -> [TrackerCategory] {
         updateFetchRequest(date: date.startOfDay())
+        updateFetchRequestForPinned()
         guard let sections = fetchedResultsController.sections else { return [] }
+        guard let pinnedObjects = fetchedPinnedController.fetchedObjects else { return [] }
         var trackerCategories: [TrackerCategory] = []
+        
+        let pinnedTrackers = pinnedObjects.compactMap { getTracker(from: $0) }
+        if !pinnedTrackers.isEmpty {
+            let pinnedCategory = TrackerCategory(name: NSLocalizedString("trackers.pinned.category", comment: ""), trackers: pinnedTrackers)
+            trackerCategories.append(pinnedCategory)
+        }
+        
         for section in sections {
             guard let objects = section.objects as? [TrackerCoreData] else { continue }
             let trackers: [Tracker] = objects.compactMap { getTracker(from: $0) }
@@ -80,6 +104,7 @@ final class TrackerStore: NSObject {
         trackerCD.emoji = tracker.emoji
         trackerCD.colorHex = UIColor.hexString(from: tracker.color)
         trackerCD.isHabit = tracker.isHabit
+        trackerCD.isPinned = tracker.isPinned
         guard let schedule = tracker.schedule else {
             preconditionFailure("Failure with adding tracker")
         }
@@ -89,10 +114,45 @@ final class TrackerStore: NSObject {
         PersistentService.shared.saveContext()
     }
     
+    func editTracker(tracker: Tracker, category: String) {
+        guard let categoryCoreData = findCategory(by: category) else {
+            preconditionFailure("Failure with editing tracker")
+        }
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        guard let trackerCoreData = try? context.fetch(fetchRequest).first else {
+            preconditionFailure("Failure with editing tracker")
+        }
+        trackerCoreData.name = tracker.name
+        trackerCoreData.emoji = tracker.emoji
+        trackerCoreData.colorHex = UIColor.hexString(from: tracker.color)
+        if let schedule = tracker.schedule {
+            trackerCoreData.schedule = Int32(schedule.rawValue)
+        }
+        trackerCoreData.category = categoryCoreData
+        PersistentService.shared.saveContext()
+    }
+    
+    func togglePinned(for trackerID: UUID) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerID as CVarArg)
+        do {
+            if let trackerCoreData = try context.fetch(fetchRequest).first {
+                trackerCoreData.isPinned.toggle()
+                try context.save()
+            } else {
+                print("tracker with id \(trackerID) not found")
+            }
+        } catch {
+            print("failed to toggle pinned state for tracker with id \(trackerID)")
+        }
+    }
+    
     // MARK: - Private methods
     
     private func getTracker(from tracker: TrackerCoreData) -> Tracker {
         let isHabit = tracker.isHabit
+        let isPinned = tracker.isPinned
         let schedule = tracker.schedule
         let date = tracker.date
         guard let id = tracker.id,
@@ -108,6 +168,7 @@ final class TrackerStore: NSObject {
             color: UIColor(hex: color),
             emoji: emoji,
             isHabit: isHabit,
+            isPinned: isPinned,
             schedule: Weekdays(rawValue: schedule),
             date: date
         )
@@ -122,6 +183,17 @@ final class TrackerStore: NSObject {
         return nil
     }
     
+    func categoryFor(trackerID: UUID) -> String {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerID as CVarArg)
+        guard let trackerCoreData = try? context.fetch(fetchRequest).first,
+              let categoryName = trackerCoreData.category?.name
+        else {
+            preconditionFailure("Category name not found for tracker with id \(trackerID)")
+        }
+        return categoryName
+    }
+    
     private func getPredicateFor(date: Date) -> NSPredicate {
         let calendar = Calendar.current
         let currentWeekdayInt = calendar.component(.weekday, from: date)
@@ -130,17 +202,23 @@ final class TrackerStore: NSObject {
         }
         let dateStart = date.startOfDay() as NSDate
         let datePredicate = NSPredicate(format: "date == %@", dateStart)
+        let isPinnedPredicate = NSPredicate(format: "isPinned == false")
         let notHabitPredicate = NSPredicate(format: "isHabit == false")
-        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, notHabitPredicate])
+        let dateAndNoSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [datePredicate, notHabitPredicate, isPinnedPredicate])
         let scheduleContainsDayPredicate = NSPredicate(format: "(schedule & %d) != 0", currentWeekday)
         let isHabitPredicate = NSPredicate(format: "isHabit == true")
-        let habitAndSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [scheduleContainsDayPredicate, isHabitPredicate])
+        let habitAndSchedulePredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [scheduleContainsDayPredicate, isHabitPredicate, isPinnedPredicate])
         let finalPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [dateAndNoSchedulePredicate, habitAndSchedulePredicate])
         return finalPredicate
     }
     
     private func getPredicateFor(searchString: String) -> NSPredicate {
         let predicate = NSPredicate(format: "name CONTAINS[cd] %@", searchString)
+        return predicate
+    }
+    
+    private func getPredicateForPinned() -> NSPredicate {
+        let predicate = NSPredicate(format: "isPinned == true")
         return predicate
     }
     
@@ -159,6 +237,16 @@ final class TrackerStore: NSObject {
         fetchRequest.predicate = getPredicateFor(searchString: searchString)
         do {
             try fetchedResultsController.performFetch()
+        } catch {
+            preconditionFailure("Failed to fetch filtered results")
+        }
+    }
+    
+    private func updateFetchRequestForPinned() {
+        let fetchRequest = fetchedPinnedController.fetchRequest
+        fetchRequest.predicate = getPredicateForPinned()
+        do {
+            try fetchedPinnedController.performFetch()
         } catch {
             preconditionFailure("Failed to fetch filtered results")
         }

@@ -16,7 +16,14 @@
 "trackers.placeholder.text" = "Что будем отслеживать?";
 "trackers.search_placeholder.text" = "Ничего не найдено";
 "trackers.filter_button.text" = "Фильтры";
+"trackers.pinned.category" = "Закрепленные";
+"trackers.context_menu.pin" = "Закрепить";
+"trackers.context_menu.unpin" = "Открепить";
+"trackers.context_menu.edit" = "Редактировать";
+"trackers.context_menu.delete" = "Удалить";
 "delete.alert.title" = "Уверены, что хотите удалить трекер?";
+"delete.alert.action.delete" = "Удалить";
+"delete.alert.action.cancel" = "Отменить";
 
 //MARK: - Filters
 "filters.title" = "Фильтры";

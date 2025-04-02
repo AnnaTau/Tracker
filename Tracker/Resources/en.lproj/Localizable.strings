@@ -15,7 +15,14 @@
 "trackers.placeholder.text" = "What shall we track?";
 "trackers.search_placeholder.text" = "Nothing found";
 "trackers.filter_button.text" = "Filters";
+"trackers.pinned.category" = "Pinned";
+"trackers.context_menu.pin" = "Pin";
+"trackers.context_menu.unpin" = "Unpin";
+"trackers.context_menu.edit" = "Edit";
+"trackers.context_menu.delete" = "Delete";
 "delete.alert.title" = "Are you sure you want to delete the tracker?";
+"delete.alert.action.delete" = "Delete";
+"delete.alert.action.cancel" = "Cancel";
 
 //MARK: - Filters
 "filters.title" = "Filters";

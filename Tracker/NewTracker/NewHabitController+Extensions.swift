@@ -32,6 +32,9 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
             }
             let emoji = CollectionData.emojis[indexPath.item]
             cell.configure(with: emoji)
+            if emojiIndexPath == indexPath {
+                cell.selectCell()
+            }
             return cell
         } else {
             guard let cell = collectionView.dequeueReusableCell(
@@ -41,6 +44,9 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
             }
             let color = CollectionData.colors[indexPath.item]
             cell.configure(with: color)
+            if colorIndexPath == indexPath {
+                cell.selectCell()
+            }
             return cell
         }
     }
@@ -130,25 +136,33 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
     ) {
         switch sections[indexPath.section] {
         case .emojis:
+            guard let emojiIndexPath else { return }
             let cell = collectionView.cellForItem(at: indexPath) as? EmojiCell
             if emoji != nil {
-                guard let previewCellIndex = emojiIndexPath else { return }
-                let newCell = collectionView.cellForItem(at: previewCellIndex) as? EmojiCell
+                let newCell = collectionView.cellForItem(at: emojiIndexPath) as? EmojiCell
                 newCell?.clearSelection()
             }
             cell?.selectCell()
+            if emojiIndexPath != indexPath {
+                let previousEmoji = collectionView.cellForItem(at: emojiIndexPath) as? EmojiCell
+                previousEmoji?.clearSelection()
+            }
             emoji = CollectionData.emojis[indexPath.row]
-            emojiIndexPath = indexPath
+            self.emojiIndexPath = indexPath
         case .colors:
+            guard let colorIndexPath else { return }
             let cell = collectionView.cellForItem(at: indexPath) as? ColorCell
             if color != nil {
-                guard let previewCellIndex = colorIndexPath else { return }
-                let newCell = collectionView.cellForItem(at: previewCellIndex) as? ColorCell
+                let newCell = collectionView.cellForItem(at: colorIndexPath) as? ColorCell
                 newCell?.clearSelection()
             }
             cell?.selectCell()
+            if colorIndexPath != indexPath {
+                let previousEmoji = collectionView.cellForItem(at: colorIndexPath) as? ColorCell
+                previousEmoji?.clearSelection()
+            }
             color = CollectionData.colors[indexPath.row]
-            colorIndexPath = indexPath
+            self.colorIndexPath = indexPath
         }
         updateSaveButton()
     }

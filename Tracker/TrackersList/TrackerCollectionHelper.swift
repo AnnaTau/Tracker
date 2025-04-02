@@ -60,4 +60,12 @@ final class TrackerCollectionHelper {
         guard row >= 0 && row < trackers.count else { return nil }
         return trackers[row]
     }
+    
+    func togglePinned(id: UUID) {
+        trackerStore.togglePinned(for: id)
+    }
+    
+    func delete(id: UUID) {
+        trackerRecordStore.deleteTrackerAndRecords(with: id)
+    }
 }

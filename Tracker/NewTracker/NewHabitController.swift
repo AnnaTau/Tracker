@@ -9,17 +9,20 @@ import UIKit
 
 protocol NewHabitDelegate: AnyObject {
     func didCreateNewHabit(tracker: Tracker, category: String)
+    func didEditHabit(tracker: Tracker, category: String)
 }
 
 final class NewHabitController: UIViewController {
     var delegate: NewHabitDelegate?
     private var chosenDays: Weekdays = Weekdays()
-    private let habitType: HabitType
+    private var habitType: HabitType
     private var selectedCategory: String?
     var emoji: String?
     var color: UIColor?
+    var isPinned: Bool
     var emojiIndexPath: IndexPath?
     var colorIndexPath: IndexPath?
+    var isEditMode: Bool
     lazy var isHabit: Bool = {
         switch habitType {
         case .habit: return true
@@ -53,8 +56,24 @@ final class NewHabitController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = habitType.value
+        if isEditMode {
+            switch habitType {
+            case .habit:
+                label.text = NSLocalizedString("tracker.event_type.update_habit", comment: "")
+            case .event:
+                label.text = NSLocalizedString("tracker.event_type.update_event", comment: "")
+            }
+        } else {
+            label.text = habitType.value
+        }
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textAlignment = .center
+        return label
+    }()
+    
+    private lazy var counterLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         label.textAlignment = .center
         return label
     }()
@@ -160,7 +179,43 @@ final class NewHabitController: UIViewController {
     
     init(habitType: HabitType) {
         self.habitType = habitType
+        self.isPinned = false
+        self.isEditMode = false
         super.init(nibName: nil, bundle: nil)
+    }
+    
+    convenience init(habitType: HabitType, category: String, recordsCount: Int, tracker: Tracker, isEditMode: Bool = true) {
+        self.init(habitType: habitType)
+        self.isEditMode = isEditMode
+        self.selectedCategory = category
+        isPinned = tracker.isPinned
+        categoryCell.detailTextLabel?.text = category
+        counterLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: ""),
+            recordsCount
+        )
+        trackerNameTextField.text = tracker.name
+        if isHabit {
+            guard let schedule = tracker.schedule else { return }
+            chosenDays = schedule
+            var shortNamesOfDays = ""
+            if chosenDays == .all {
+                shortNamesOfDays = NSLocalizedString("weekdays.short.all", comment: "")
+            } else {
+                for day in chosenDays {
+                    if shortNamesOfDays != "" {
+                        shortNamesOfDays = shortNamesOfDays + ", " + day.shortName
+                    } else {
+                        shortNamesOfDays = day.shortName
+                    }
+                }
+            }
+            scheduleCell.detailTextLabel?.text = shortNamesOfDays
+        }
+        emojiIndexPath = CollectionData.emojis.firstIndex(of: tracker.emoji).map { IndexPath(item: $0, section: 0) }
+        colorIndexPath = CollectionData.colors.firstIndex(of: tracker.color).map { IndexPath(item: $0, section: 1) }
+        color = tracker.color
+        emoji = tracker.emoji
     }
     
     required init?(coder: NSCoder) {
@@ -179,22 +234,42 @@ final class NewHabitController: UIViewController {
         contentView.addSubviews([titleLabel, trackerNameTextField, tableView, colorAndEmojiCollectionView, buttonsStackView])
         scrollView.addSubviews([contentView])
         
-        NSLayoutConstraint.activate([
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            
-            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            
-            trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+        var constraints: [NSLayoutConstraint] = []
+        
+        constraints.append(
+            contentsOf: [
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                
+                contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
+                titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor)
+            ]
+        )
+        
+        if isEditMode {
+            contentView.addSubviews([counterLabel])
+            constraints.append(contentsOf: [
+                counterLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+                counterLabel.widthAnchor.constraint(equalToConstant: 38),
+                counterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+                counterLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+                trackerNameTextField.topAnchor.constraint(equalTo: counterLabel.bottomAnchor, constant: 40)
+            ])
+        } else {
+            constraints.append(contentsOf: [
+                trackerNameTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38)
+            ])
+        }
+        
+        constraints.append(contentsOf: [
             trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
@@ -215,6 +290,9 @@ final class NewHabitController: UIViewController {
             buttonsStackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             buttonsStackView.heightAnchor.constraint(equalToConstant: 60)
         ])
+        
+        NSLayoutConstraint.activate(constraints)
+        updateSaveButton()
     }
     
     private func isReadyToSave(text: String?) -> Bool {
@@ -259,10 +337,15 @@ final class NewHabitController: UIViewController {
             color: color,
             emoji: emoji,
             isHabit: isHabit,
+            isPinned: isPinned,
             schedule: chosenDays,
             date: dateForEvent
         )
-        delegate.didCreateNewHabit(tracker: tracker, category: selectedCategory)
+        if isEditMode {
+            delegate.didEditHabit(tracker: tracker, category: selectedCategory)
+        } else {
+            delegate.didCreateNewHabit(tracker: tracker, category: selectedCategory)
+        }
         dismiss(animated: true, completion: nil)
     }
 }

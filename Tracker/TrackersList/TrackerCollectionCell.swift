@@ -17,6 +17,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private var tracker: Tracker?
     private var selectedDate: Date?
     private var count: Int = 0
+    private var isPinned: Bool = false
     
     private lazy var emojiLabel: UILabel = {
         let label = UILabel()
@@ -34,6 +35,12 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return label
     }()
     
+    private lazy var pinImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "Pin"))
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
     private lazy var daysLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -48,7 +55,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         return button
     }()
     
-    private lazy var cellView: UIView = {
+    lazy var cellView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 16
         view.clipsToBounds = true
@@ -59,6 +66,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         self.tracker = tracker
         self.selectedDate = selectedDate
         self.count = count
+        self.isPinned = tracker.isPinned
         
         emojiLabel.text = tracker.emoji
         nameLabel.text = tracker.name
@@ -66,14 +74,17 @@ final class TrackerCollectionCell: UICollectionViewCell {
         
         daysLabel.text = formatDaysText(count)
         setupPlusButton(isDone: isDone, color: tracker.color)
+        
+        setupLayout()
+        pinImageView.isHidden = !isPinned
     }
     
     private func setupLayout() {
         cellView.addSubviews([emojiLabel, nameLabel])
         contentView.addSubviews([cellView, daysLabel, plusButton])
         
-        NSLayoutConstraint.activate([
-            
+        var constraints: [NSLayoutConstraint] = []
+        constraints.append(contentsOf: [
             cellView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cellView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cellView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
@@ -86,7 +97,19 @@ final class TrackerCollectionCell: UICollectionViewCell {
             nameLabel.leadingAnchor.constraint(equalTo: emojiLabel.leadingAnchor),
             nameLabel.trailingAnchor.constraint(equalTo: cellView.trailingAnchor, constant: -12),
             nameLabel.bottomAnchor.constraint(equalTo: cellView.bottomAnchor, constant: -12),
-            
+        ])
+        
+        if isPinned {
+            cellView.addSubviews([pinImageView])
+            constraints.append(contentsOf: [
+                pinImageView.topAnchor.constraint(equalTo: cellView.topAnchor, constant: 12),
+                pinImageView.trailingAnchor.constraint(equalTo: cellView.trailingAnchor, constant: -4),
+                pinImageView.widthAnchor.constraint(equalToConstant: 24),
+                pinImageView.heightAnchor.constraint(equalToConstant: 24),
+            ])
+        }
+        
+        constraints.append(contentsOf: [
             plusButton.topAnchor.constraint(equalTo: cellView.bottomAnchor, constant: 8),
             plusButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             plusButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -6),
@@ -97,11 +120,12 @@ final class TrackerCollectionCell: UICollectionViewCell {
             daysLabel.topAnchor.constraint(equalTo: cellView.bottomAnchor, constant: 16),
             daysLabel.leadingAnchor.constraint(equalTo: emojiLabel.leadingAnchor),
         ])
+        
+        NSLayoutConstraint.activate(constraints)
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setupLayout()
     }
     
     required init?(coder: NSCoder) {

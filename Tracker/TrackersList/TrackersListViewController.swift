@@ -8,10 +8,10 @@
 import UIKit
 
 final class TrackersListViewController: UIViewController {
-    private let trackerStore = TrackerStore.shared
-    private let trackerRecordStore = TrackerRecordStore.shared
-    private let trackerCategoryStore = TrackerCategoryStore.shared
-    private var collectionHelper: TrackerCollectionHelper?
+    let trackerStore = TrackerStore.shared
+    let trackerRecordStore = TrackerRecordStore.shared
+    let trackerCategoryStore = TrackerCategoryStore.shared
+    private(set) var collectionHelper: TrackerCollectionHelper?
     private lazy var currentDate: Date = { Date().startOfDay() }()
     private(set) var currentFilter: Filter = .all
     
@@ -125,6 +125,19 @@ final class TrackersListViewController: UIViewController {
         fetchTrackers(for: currentDate)
     }
     
+    func updateCollection() {
+        switch currentFilter {
+        case .all:
+            fetchTrackers(for: currentDate)
+        case .today:
+            fetchTrackers(for: Date())
+        case .completed:
+            fetchTrackers(for: currentDate, isDone: true)
+        case .uncompleted:
+            fetchTrackers(for: currentDate, isDone: false)
+        }
+    }
+    
     private func fetchTrackers(for date: Date) {
         collectionHelper?.fetchTrackers(for: date){ [weak self] in
             guard let self,
@@ -205,12 +218,16 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
 }
 
 extension TrackersListViewController: NewHabitDelegate {
+    func didEditHabit(tracker: Tracker, category: String) {
+        trackerStore.editTracker(tracker: tracker, category: category)
+    }
+    
     func didCreateNewHabit(tracker: Tracker, category: String) {
         trackerStore.addTracker(tracker: tracker, category: category)
     }
 }
 
-extension TrackersListViewController: TrackerCollectionCellDelegate {
+extension TrackersListViewController: TrackerCollectionCellDelegate {    
     //возвращаем количество дней
     func recordAdded(for tracker: Tracker, date: Date) -> Int {
         let record = TrackerRecord(trackerId: tracker.id, date: date)
@@ -339,37 +356,7 @@ extension TrackersListViewController: UICollectionViewDelegateFlowLayout {
 
 extension TrackersListViewController: TrackerStoreDelegate {
     func store(didChangeContentWith update: IndexUpdate) {
-        collectionHelper?.fetchTrackers(for: currentDate) { [weak self] in
-            guard let self else { return }
-            if let trackersViewModel = self.collectionHelper {
-                let isHidden = trackersViewModel.numberOfSections() > 0
-                self.trackerCollectionView.isHidden = !isHidden
-                self.placeholder.isHidden = isHidden
-            }
-        }
-        trackerCollectionView.performBatchUpdates({
-            if !update.deletedSections.isEmpty {
-                trackerCollectionView.deleteSections(update.deletedSections)
-            }
-            if !update.insertedSections.isEmpty {
-                trackerCollectionView.insertSections(update.insertedSections)
-            }
-            for (section, items) in update.insertedItems {
-                let indexPaths = items.map { IndexPath(item: $0, section: section) }
-                trackerCollectionView.insertItems(at: indexPaths)
-            }
-            for (section, items) in update.deletedItems {
-                let indexPaths = items.map { IndexPath(item: $0, section: section) }
-                trackerCollectionView.deleteItems(at: indexPaths)
-            }
-            for (section, items) in update.updatedItems {
-                let indexPaths = items.map { IndexPath(item: $0, section: section) }
-                trackerCollectionView.reloadItems(at: indexPaths)
-            }
-            for move in update.movedItems {
-                trackerCollectionView.moveItem(at: move.from, to: move.to)
-            }
-        }, completion: nil)
+        updateCollection()
     }
 }
 
