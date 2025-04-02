@@ -67,6 +67,7 @@
 //MARK: - Statistic
 "statistics.title" = "Статистика";
 "statistics.placeholder.text" = "Анализировать пока нечего";
+"statistics.trackersCompleted" = "Трекеров завершено";
 
 //MARK: - WeekDays
 "weekdays.monday" = "Понедельник";

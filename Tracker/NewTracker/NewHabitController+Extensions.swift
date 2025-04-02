@@ -136,31 +136,25 @@ extension NewHabitController: UICollectionViewDelegateFlowLayout {
     ) {
         switch sections[indexPath.section] {
         case .emojis:
-            guard let emojiIndexPath else { return }
+            if let emojiIndexPath {
+                if emojiIndexPath != indexPath {
+                    let previousEmoji = collectionView.cellForItem(at: emojiIndexPath) as? EmojiCell
+                    previousEmoji?.clearSelection()
+                }
+            }
             let cell = collectionView.cellForItem(at: indexPath) as? EmojiCell
-            if emoji != nil {
-                let newCell = collectionView.cellForItem(at: emojiIndexPath) as? EmojiCell
-                newCell?.clearSelection()
-            }
             cell?.selectCell()
-            if emojiIndexPath != indexPath {
-                let previousEmoji = collectionView.cellForItem(at: emojiIndexPath) as? EmojiCell
-                previousEmoji?.clearSelection()
-            }
             emoji = CollectionData.emojis[indexPath.row]
             self.emojiIndexPath = indexPath
         case .colors:
-            guard let colorIndexPath else { return }
+            if let colorIndexPath {
+                if colorIndexPath != indexPath {
+                    let previousEmoji = collectionView.cellForItem(at: colorIndexPath) as? ColorCell
+                    previousEmoji?.clearSelection()
+                }
+            }
             let cell = collectionView.cellForItem(at: indexPath) as? ColorCell
-            if color != nil {
-                let newCell = collectionView.cellForItem(at: colorIndexPath) as? ColorCell
-                newCell?.clearSelection()
-            }
             cell?.selectCell()
-            if colorIndexPath != indexPath {
-                let previousEmoji = collectionView.cellForItem(at: colorIndexPath) as? ColorCell
-                previousEmoji?.clearSelection()
-            }
             color = CollectionData.colors[indexPath.row]
             self.colorIndexPath = indexPath
         }
