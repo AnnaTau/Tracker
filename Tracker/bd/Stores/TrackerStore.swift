@@ -148,6 +148,25 @@ final class TrackerStore: NSObject {
         }
     }
     
+    func deleteAll() {
+        let trackerFetchRequest: NSFetchRequest<NSFetchRequestResult> = TrackerCoreData.fetchRequest()
+        let trackerCategoryFetchRequest: NSFetchRequest<NSFetchRequestResult> = TrackerCategoryCoreData.fetchRequest()
+        let trackerRecordFetchRequest: NSFetchRequest<NSFetchRequestResult> = TrackerRecordCoreData.fetchRequest()
+        
+        let deleteTrackerRequest = NSBatchDeleteRequest(fetchRequest: trackerFetchRequest)
+        let deleteCategoryRequest = NSBatchDeleteRequest(fetchRequest: trackerCategoryFetchRequest)
+        let deleteRecordRequest = NSBatchDeleteRequest(fetchRequest: trackerRecordFetchRequest)
+        
+        do {
+            try context.execute(deleteTrackerRequest)
+            try context.execute(deleteCategoryRequest)
+            try context.execute(deleteRecordRequest)
+            PersistentService.shared.saveContext()
+        } catch {
+            print("Failed to delete all data from Core Data")
+        }
+    }
+    
     // MARK: - Private methods
     
     private func getTracker(from tracker: TrackerCoreData) -> Tracker {
