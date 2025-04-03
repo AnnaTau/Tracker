@@ -29,7 +29,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private lazy var nameLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .ypWhite
+        label.textColor = .lightFont
         label.numberOfLines = 2
         label.textAlignment = .left
         return label
@@ -44,7 +44,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
     private lazy var daysLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .ypBlack
+        label.textColor = .commonFont
         return label
     }()
     

@@ -39,6 +39,7 @@ final class StatisticsController: UIViewController {
         super.viewDidLoad()
         navigationItem.title = NSLocalizedString("statistics.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .background
         
         view.addSubviews([placeHolderView, completedTrackersView])
         addConstrains()

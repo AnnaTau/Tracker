@@ -30,12 +30,13 @@ final class CategoriesViewController: UIViewController {
         label.text = NSLocalizedString("categories.title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
+        label.textColor = .commonFont
         return label
     }()
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .ypWhite
+        table.backgroundColor = .background
         table.register(CategoryTableViewCell.self, forCellReuseIdentifier: "cell")
         table.layer.cornerRadius = 16
         table.isScrollEnabled = false
@@ -49,8 +50,8 @@ final class CategoriesViewController: UIViewController {
         let text = NSLocalizedString("categories.button.add", comment: "")
         button.setTitle(text, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.darkButtonFont, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(addCategoryButtonTapped), for: .touchUpInside)
         return button
@@ -65,7 +66,7 @@ final class CategoriesViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         setupLayout()
         viewModel?.trackerCategoriesBinding = updateTableView
         viewModel?.fetchTrackerCategories()
@@ -144,7 +145,7 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
         cell.configure(text: title, isSelected: title == selectedCategory)
-        cell.backgroundColor = .ypLightGrey
+        cell.backgroundColor = .cellBackground
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return cell
     }

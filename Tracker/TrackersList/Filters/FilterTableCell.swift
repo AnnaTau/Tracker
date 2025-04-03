@@ -11,7 +11,7 @@ final class FilterTableCell: UITableViewCell {
     let label: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = .ypBlack
+        label.textColor = .commonFont
         return label
     }()
     
@@ -49,6 +49,6 @@ final class FilterTableCell: UITableViewCell {
     func configure(text: String, isSelected: Bool) {
         label.text = text
         selectedImageView.image = isSelected ? UIImage(named: "Done") : nil
-        contentView.backgroundColor = .ypLightGrey
+        contentView.backgroundColor = .cellBackground
     }
 }

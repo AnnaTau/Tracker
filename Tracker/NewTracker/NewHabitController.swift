@@ -83,7 +83,7 @@ final class NewHabitController: UIViewController {
         textField.delegate = self
         textField.placeholder = NSLocalizedString("tracker.placeholder.name", comment: "")
         textField.layer.cornerRadius = 16
-        textField.backgroundColor = .ypLightGrey
+        textField.backgroundColor = .cellBackground
         let indent = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: textField.frame.height))
         textField.leftView = indent
         textField.leftViewMode = .always
@@ -94,7 +94,7 @@ final class NewHabitController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .ypWhite
+        table.backgroundColor = .background
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         table.layer.cornerRadius = 16
         table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
@@ -109,10 +109,10 @@ final class NewHabitController: UIViewController {
         cell.textLabel?.text = NSLocalizedString("tracker.title.category", comment: "")
         cell.accessoryType = .disclosureIndicator
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        cell.backgroundColor = .ypLightGrey
+        cell.backgroundColor = .cellBackground
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
-        cell.detailTextLabel?.textColor = .ypBlack
-        cell.textLabel?.textColor = .ypBlack
+        cell.detailTextLabel?.textColor = .ypGrey
+        cell.textLabel?.textColor = .commonFont
         return cell
     }()
     
@@ -121,10 +121,10 @@ final class NewHabitController: UIViewController {
         cell.textLabel?.text = NSLocalizedString("tracker.title.schedule", comment: "")
         cell.accessoryType = .disclosureIndicator
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
-        cell.backgroundColor = .ypLightGrey
+        cell.backgroundColor = .cellBackground
         cell.textLabel?.font = UIFont.systemFont(ofSize: 17)
-        cell.detailTextLabel?.textColor = .ypBlack
-        cell.textLabel?.textColor = .ypBlack
+        cell.detailTextLabel?.textColor = .ypGrey
+        cell.textLabel?.textColor = .commonFont
         return cell
     }()
     
@@ -133,7 +133,7 @@ final class NewHabitController: UIViewController {
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.isScrollEnabled = false
-        collectionView.backgroundColor = .ypWhite
+        collectionView.backgroundColor = .background
         collectionView.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -160,7 +160,7 @@ final class NewHabitController: UIViewController {
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("tracker.button.create", comment: ""), for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.commonFont, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
         button.layer.cornerRadius = 16
@@ -228,7 +228,7 @@ final class NewHabitController: UIViewController {
     }
     
     private func configureView() {
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         
         view.addSubviews([scrollView])
         contentView.addSubviews([titleLabel, trackerNameTextField, tableView, colorAndEmojiCollectionView, buttonsStackView])
@@ -312,8 +312,14 @@ final class NewHabitController: UIViewController {
     }
     
     func updateSaveButton() {
-        createButton.isEnabled = isReadyToSave(text: trackerNameTextField.text)
-        createButton.backgroundColor = isReadyToSave(text: trackerNameTextField.text) ? .ypBlack : .ypGrey
+        let isReady = isReadyToSave(text: trackerNameTextField.text)
+        createButton.isEnabled = isReady
+        createButton.backgroundColor = isReady ? .darkBackground : .ypGrey
+        if isReady {
+            createButton.setTitleColor(.darkButtonFont, for: .normal)
+        } else {
+            createButton.setTitleColor(.white, for: .normal)
+        }
     }
     
     @objc private func cancelButtonTapped() {
@@ -448,7 +454,13 @@ extension NewHabitController: UITextFieldDelegate {
         guard let stringRange = Range(range, in: currentText) else { return false }
         let text = currentText.replacingCharacters(in: stringRange, with: string)
         let isReady = isReadyToSave(text: text)
-        createButton.backgroundColor = isReady ? .ypBlack : .ypGrey
+        createButton.backgroundColor = isReady ? .darkBackground : .ypGrey
+        if isReady {
+            createButton.setTitleColor(.darkButtonFont, for: .normal)
+        } else {
+            createButton.setTitleColor(.white, for: .normal)
+        }
+        
         createButton.isEnabled = isReady
         return text.count <= 38
     }

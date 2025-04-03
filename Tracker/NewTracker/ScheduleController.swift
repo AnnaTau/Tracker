@@ -25,7 +25,7 @@ final class ScheduleController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .ypWhite
+        table.backgroundColor = .cellBackground
         table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
         table.layer.cornerRadius = 16
         table.isScrollEnabled = false
@@ -39,8 +39,8 @@ final class ScheduleController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("schedule.button.text", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.background, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         return button
@@ -48,7 +48,7 @@ final class ScheduleController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         configureView()
     }
     
@@ -130,7 +130,7 @@ extension ScheduleController: UITableViewDelegate, UITableViewDataSource {
         switchView.tag = indexPath.row + 1
         switchView.addTarget(self, action: #selector(switchTapped), for: .valueChanged)
         cell.accessoryView = switchView
-        cell.backgroundColor = .ypLightGrey
+        cell.backgroundColor = .cellBackground
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         return cell

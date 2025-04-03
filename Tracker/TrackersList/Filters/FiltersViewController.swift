@@ -25,7 +25,7 @@ final class FiltersViewController: UIViewController {
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .ypWhite
+        table.backgroundColor = .background
         table.register(FilterTableCell.self, forCellReuseIdentifier: "cell")
         table.layer.cornerRadius = 16
         table.delegate = self
@@ -44,7 +44,7 @@ final class FiltersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         setupLayout()
         tableView.reloadData()
     }
@@ -98,7 +98,7 @@ extension FiltersViewController: UITableViewDelegate, UITableViewDataSource {
         let filter = Filter.allCases[indexPath.row]
         let isSelected = filter == delegate.currentFilter
         cell.configure(text: filter.name, isSelected: isSelected)
-        cell.backgroundColor = .ypLightGrey
+        cell.backgroundColor = .cellBackground
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         
         return cell

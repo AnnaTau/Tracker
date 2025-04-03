@@ -75,7 +75,7 @@ extension NewHabitController: UICollectionViewDataSource, UICollectionViewDelega
             }
 
             label.textAlignment = .left
-            label.textColor = .ypBlack
+            label.textColor = .commonFont
             label.font = UIFont.boldSystemFont(ofSize: 19)
             headerView.addSubviews([label])
             

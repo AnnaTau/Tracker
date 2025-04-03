@@ -12,7 +12,7 @@ final class StatisticsItemView: GradientBorderView {
     private let valueLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        label.textColor = .ypBlack
+        label.textColor = .commonFont
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -20,7 +20,7 @@ final class StatisticsItemView: GradientBorderView {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .ypBlack
+        label.textColor = .commonFont
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

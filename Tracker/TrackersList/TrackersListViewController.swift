@@ -43,7 +43,7 @@ final class TrackersListViewController: UIViewController {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.delegate = self
         collectionView.dataSource = self
-        collectionView.backgroundColor = .ypWhite
+        collectionView.backgroundColor = .background
         collectionView.register(
             UICollectionReusableView.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
@@ -81,6 +81,7 @@ final class TrackersListViewController: UIViewController {
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: datePicker)
         navigationItem.title = NSLocalizedString("trackers.title", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
+        view.backgroundColor = .background
         
         let searchController = UISearchController(searchResultsController: nil)
         searchController.obscuresBackgroundDuringPresentation = false
@@ -175,6 +176,7 @@ final class TrackersListViewController: UIViewController {
             let isHidden = numberOfSections > 0
             self.trackerCollectionView.isHidden = !isHidden
             self.placeholderSearch.isHidden = isHidden
+            self.placeholder.isHidden = !isHidden
             self.filterButton.isHidden = true
         }
     }
@@ -294,7 +296,7 @@ extension TrackersListViewController: UICollectionViewDataSource, UICollectionVi
             }
             label.text = sectionTitle
             label.textAlignment = .left
-            label.textColor = .ypBlack
+            label.textColor = .commonFont
             label.font = UIFont.boldSystemFont(ofSize: 19)
             headerView.subviews.forEach { $0.removeFromSuperview() }
             headerView.addSubview(label)

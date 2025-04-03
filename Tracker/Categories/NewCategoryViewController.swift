@@ -18,6 +18,7 @@ final class NewCategoryViewController: UIViewController {
         let label = UILabel()
         label.text = NSLocalizedString("new_category.title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .commonFont
         label.textAlignment = .center
         return label
     }()
@@ -46,7 +47,7 @@ final class NewCategoryViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
         button.isEnabled = false
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.darkButtonFont, for: .normal)
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
         return button
@@ -54,7 +55,7 @@ final class NewCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .background
         setupLayout()
     }
     
@@ -84,7 +85,7 @@ final class NewCategoryViewController: UIViewController {
             return
         }
         createButton.isEnabled = true
-        createButton.backgroundColor = .ypBlack
+        createButton.backgroundColor = .darkBackground
     }
     
     @objc private func createButtonTapped() {

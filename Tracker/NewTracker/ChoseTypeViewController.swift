@@ -27,8 +27,8 @@ final class ChoseTypeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("tracker_creation.button.habit", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.darkButtonFont, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(habitButtonTapped), for: .touchUpInside)
         return button
@@ -38,8 +38,8 @@ final class ChoseTypeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("tracker_creation.button.event", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.darkButtonFont, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(irregularButtonTapped), for: .touchUpInside)
         return button
@@ -51,7 +51,7 @@ final class ChoseTypeViewController: UIViewController {
     }
     
     private func configureView(){
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         
         view.addSubviews([titleLabel, habitButton, irregularEventButton])
         
