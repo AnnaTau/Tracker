@@ -227,6 +227,16 @@ final class NewHabitController: UIViewController {
         configureView()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.NewTrackerScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.NewTrackerScreen.name)"])
+    }
+    
     private func configureView() {
         view.backgroundColor = .background
         
@@ -323,6 +333,7 @@ final class NewHabitController: UIViewController {
     }
     
     @objc private func cancelButtonTapped() {
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.NewTrackerScreen.clickCancel)
         dismiss(animated: true, completion: nil)
     }
     
@@ -347,6 +358,7 @@ final class NewHabitController: UIViewController {
             schedule: chosenDays,
             date: dateForEvent
         )
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.NewTrackerScreen.clickSave)
         if isEditMode {
             delegate.didEditHabit(tracker: tracker, category: selectedCategory)
         } else {

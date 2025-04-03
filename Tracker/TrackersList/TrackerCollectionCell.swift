@@ -156,6 +156,7 @@ final class TrackerCollectionCell: UICollectionViewCell {
         
         count = newCount
         daysLabel.text = formatDaysText(count)
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.MainScreen.clickTracker)
     }
     
     private func formatDaysText(_ count: Int) -> String {

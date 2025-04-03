@@ -49,6 +49,16 @@ final class StatisticsController: UIViewController {
         loadStatistics()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.StatisticsScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.StatisticsScreen.name)"])
+    }
+    
     private func addConstrains() {
         NSLayoutConstraint.activate([
             placeHolderView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),

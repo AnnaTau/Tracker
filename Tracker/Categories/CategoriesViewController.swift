@@ -72,6 +72,16 @@ final class CategoriesViewController: UIViewController {
         viewModel?.fetchTrackerCategories()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.CategoriesScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.CategoriesScreen.name)"])
+    }
+    
     private func updateTableView(categories: [String?]) {
         tableView.reloadData()
         let isHidden = categories.isEmpty

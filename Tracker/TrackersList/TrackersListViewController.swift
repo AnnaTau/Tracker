@@ -94,6 +94,16 @@ final class TrackersListViewController: UIViewController {
         configureStore()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.MainScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.MainScreen.name)"])
+    }
+    
     private func addConstraints() {
         NSLayoutConstraint.activate([
             placeholder.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -194,12 +204,14 @@ final class TrackersListViewController: UIViewController {
         let choseTypeController = ChoseTypeViewController()
         choseTypeController.delegate = self
         present(choseTypeController, animated: true)
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.MainScreen.clickAddTracker)
     }
     
     @objc func filterButtonTapped() {
         let filtersViewController = FiltersViewController(delegate: self)
         filtersViewController.modalPresentationStyle = .pageSheet
         present(filtersViewController, animated: true, completion: nil)
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.MainScreen.clickFilter)
     }
 }
 
@@ -209,6 +221,7 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
         let newHabitController = NewHabitController(habitType: .habit)
         newHabitController.delegate = self
         present(newHabitController, animated: true)
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.TrackersTypeScreen.clickAddTracker)
     }
     
     func newIrregularEventTapped(vc: ChoseTypeViewController) {
@@ -216,6 +229,7 @@ extension TrackersListViewController: ChoseTypeViewDelegate {
         let newHabitController = NewHabitController(habitType: .event)
         newHabitController.delegate = self
         present(newHabitController, animated: true)
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.TrackersTypeScreen.clickAddIrregularEvent)
     }
 }
 

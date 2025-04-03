@@ -59,6 +59,16 @@ final class NewCategoryViewController: UIViewController {
         setupLayout()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.NewCategoryScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.NewCategoryScreen.name)"])
+    }
+    
     private func setupLayout() {
         view.addSubviews([titleLabel, categoryTextField, createButton])
         NSLayoutConstraint.activate([
@@ -92,6 +102,7 @@ final class NewCategoryViewController: UIViewController {
         guard let category = categoryTextField.text,
               let delegate
         else { return }
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.NewCategoryScreen.clickCreate)
         delegate.didTapCreateButton(category: category)
         dismiss(animated: true, completion: nil)
     }

@@ -49,6 +49,16 @@ final class FiltersViewController: UIViewController {
         tableView.reloadData()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.FiltersScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.FiltersScreen.name)"])
+    }
+    
     private func setupLayout() {
         view.addSubviews([titleLabel, tableView])
         NSLayoutConstraint.activate([
@@ -109,6 +119,7 @@ extension FiltersViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.FiltersScreen.selectFilter)
         tableView.deselectRow(at: indexPath, animated: true)
         let selectedFilter = Filter.allCases[indexPath.row]
         delegate.didSelectFilter(filter: selectedFilter)

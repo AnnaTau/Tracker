@@ -87,6 +87,7 @@ extension TrackersListViewController {
         if let topViewController = UIApplication.shared.windows.first?.rootViewController {
             topViewController.present(alertController, animated: true, completion: nil)
         }
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.MainScreen.clickDelete)
     }
     
     private func editItem(at indexPath: IndexPath) {
@@ -101,5 +102,6 @@ extension TrackersListViewController {
         updateTrackerViewController.delegate = self
         updateTrackerViewController.modalPresentationStyle = .pageSheet
         present(updateTrackerViewController, animated: true, completion: nil)
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.MainScreen.clickEdit)
     }
 }
