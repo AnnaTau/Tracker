@@ -27,15 +27,16 @@ final class CategoriesViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = NSLocalizedString("categories.title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
+        label.textColor = .commonFont
         return label
     }()
     
     private lazy var tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .ypWhite
+        table.backgroundColor = .background
         table.register(CategoryTableViewCell.self, forCellReuseIdentifier: "cell")
         table.layer.cornerRadius = 16
         table.isScrollEnabled = false
@@ -46,10 +47,11 @@ final class CategoriesViewController: UIViewController {
     
     private lazy var addNewCategory: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Добавить категорию", for: .normal)
+        let text = NSLocalizedString("categories.button.add", comment: "")
+        button.setTitle(text, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.darkButtonFont, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(addCategoryButtonTapped), for: .touchUpInside)
         return button
@@ -57,17 +59,27 @@ final class CategoriesViewController: UIViewController {
     
     private let placeHolderView: PlaceholderView = {
         let view = PlaceholderView()
-        view.setText(text: "Привычки и события можно\nобъединить по смыслу")
+        view.setText(text: NSLocalizedString("categories.placeholder.text", comment: ""))
         view.isHidden = true
         return view
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         setupLayout()
         viewModel?.trackerCategoriesBinding = updateTableView
         viewModel?.fetchTrackerCategories()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.CategoriesScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.CategoriesScreen.name)"])
     }
     
     private func updateTableView(categories: [String?]) {
@@ -143,7 +155,7 @@ extension CategoriesViewController: UITableViewDataSource, UITableViewDelegate {
             return UITableViewCell()
         }
         cell.configure(text: title, isSelected: title == selectedCategory)
-        cell.backgroundColor = .ypLightGrey
+        cell.backgroundColor = .cellBackground
         cell.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         return cell
     }

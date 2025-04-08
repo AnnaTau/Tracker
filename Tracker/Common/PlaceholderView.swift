@@ -36,6 +36,10 @@ final class PlaceholderView: UIView {
         titleLabel.text = text
     }
     
+    func setImage(byName image: String) {
+        imageView.image = UIImage(named: image)
+    }
+    
     private func configure() {
         addSubviews([imageView, titleLabel])
         NSLayoutConstraint.activate([

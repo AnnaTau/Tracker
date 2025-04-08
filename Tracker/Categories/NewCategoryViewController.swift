@@ -16,15 +16,16 @@ final class NewCategoryViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        label.text = NSLocalizedString("new_category.title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = .commonFont
         label.textAlignment = .center
         return label
     }()
     
     private lazy var categoryTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = NSLocalizedString("new_category.placeholder", comment: "")
         textField.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         textField.backgroundColor = .ypLightGrey
         textField.layer.cornerRadius = 16
@@ -42,11 +43,11 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("new_category.button.done", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGrey
         button.isEnabled = false
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.darkButtonFont, for: .normal)
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
         return button
@@ -54,8 +55,18 @@ final class NewCategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .background
         setupLayout()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.NewCategoryScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.NewCategoryScreen.name)"])
     }
     
     private func setupLayout() {
@@ -84,13 +95,14 @@ final class NewCategoryViewController: UIViewController {
             return
         }
         createButton.isEnabled = true
-        createButton.backgroundColor = .ypBlack
+        createButton.backgroundColor = .darkBackground
     }
     
     @objc private func createButtonTapped() {
         guard let category = categoryTextField.text,
               let delegate
         else { return }
+        AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.NewCategoryScreen.clickCreate)
         delegate.didTapCreateButton(category: category)
         dismiss(animated: true, completion: nil)
     }

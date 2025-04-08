@@ -29,12 +29,12 @@ final class TrackerCategoryStore: NSObject {
         return controller
     }()
     
-    convenience override init() {
+    private convenience override init() {
         let context = PersistentService.shared.context
         self.init(context: context)
     }
     
-    init(context: NSManagedObjectContext) {
+    private init(context: NSManagedObjectContext) {
         self.context = context
     }
     

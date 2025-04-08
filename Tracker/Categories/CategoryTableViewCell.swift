@@ -11,7 +11,7 @@ final class CategoryTableViewCell: UITableViewCell {
     private let trackerLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
-        label.textColor = .black
+        label.textColor = .commonFont
         return label
     }()
     
@@ -48,5 +48,6 @@ final class CategoryTableViewCell: UITableViewCell {
     func configure(text: String, isSelected: Bool) {
         trackerLabel.text = text
         selectionImageView.image = isSelected ? UIImage(named: "Done") : nil
+        backgroundColor = .cellBackground
     }
 }

@@ -13,12 +13,12 @@ final class TrackerRecordStore {
     private let context: NSManagedObjectContext
     private let trackerStore = TrackerStore.shared
     
-    convenience init() {
+    private convenience init() {
         let context = PersistentService.shared.context
         self.init(context: context)
     }
     
-    init(context: NSManagedObjectContext) {
+    private init(context: NSManagedObjectContext) {
         self.context = context
     }
     
@@ -63,6 +63,26 @@ final class TrackerRecordStore {
             context.delete(recordForDelete)
             PersistentService.shared.saveContext()
         }
+    }
+    
+    func deleteTrackerAndRecords(with trackerId: UUID) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
+        guard let trackerCoreData = try? context.fetch(fetchRequest).first else {
+            print("tracker with id \(trackerId) not found")
+            return
+        }
+        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let predicate = NSPredicate(format: "trackerId == %@", trackerId as CVarArg)
+        request.predicate = predicate
+        let trackerRecordsFromCoreData = try? context.fetch(request)
+        guard let records = trackerRecordsFromCoreData else { return }
+        for record in records {
+            context.delete(record)
+        }
+        context.delete(trackerCoreData)
+        PersistentService.shared.saveContext()
+        
     }
     
     // MARK: - Private methods

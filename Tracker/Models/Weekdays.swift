@@ -17,23 +17,24 @@ struct Weekdays: OptionSet, Sequence {
     static let friday =    Weekdays(rawValue: 1 << 4)
     static let saturday =  Weekdays(rawValue: 1 << 5)
     static let sunday =    Weekdays(rawValue: 1 << 6)
+    static let all: Weekdays = [.monday, .tuesday, .wednesday, .thursday, .friday, .saturday, .sunday]
     
     var name: String {
         switch self {
         case .monday:
-            return "Понедельник"
+            return NSLocalizedString("weekdays.monday", comment: "")
         case .tuesday:
-            return "Вторник"
+            return NSLocalizedString("weekdays.tuesday", comment: "")
         case .wednesday:
-            return "Среда"
+            return NSLocalizedString("weekdays.wednesday", comment: "")
         case .thursday:
-            return "Четверг"
+            return NSLocalizedString("weekdays.thursday", comment: "")
         case .friday:
-            return "Пятница"
+            return NSLocalizedString("weekdays.friday", comment: "")
         case .saturday:
-            return "Суббота"
+            return NSLocalizedString("weekdays.saturday", comment: "")
         case .sunday:
-            return "Воскресенье"
+            return NSLocalizedString("weekdays.sunday", comment: "")
         default:
             return "Unknown day"
         }
@@ -42,19 +43,19 @@ struct Weekdays: OptionSet, Sequence {
     var shortName: String {
         switch self {
         case .monday:
-            return "Пн"
+            return NSLocalizedString("weekdays.short.monday", comment: "")
         case .tuesday:
-            return "Вт"
+            return NSLocalizedString("weekdays.short.tuesday", comment: "")
         case .wednesday:
-            return "Ср"
+            return NSLocalizedString("weekdays.short.wednesday", comment: "")
         case .thursday:
-            return "Чт"
+            return NSLocalizedString("weekdays.short.thursday", comment: "")
         case .friday:
-            return "Пт"
+            return NSLocalizedString("weekdays.short.friday", comment: "")
         case .saturday:
-            return "Сб"
+            return NSLocalizedString("weekdays.short.saturday", comment: "")
         case .sunday:
-            return "Вс"
+            return NSLocalizedString("weekdays.short.sunday", comment: "")
         default:
             return "Unknown day"
         }

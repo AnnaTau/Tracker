@@ -17,7 +17,7 @@ final class ChoseTypeViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Создание трекера"
+        label.text = NSLocalizedString("tracker_creation.title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         return label
@@ -25,10 +25,10 @@ final class ChoseTypeViewController: UIViewController {
     
     private lazy var habitButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Привычка", for: .normal)
+        button.setTitle(NSLocalizedString("tracker_creation.button.habit", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.darkButtonFont, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(habitButtonTapped), for: .touchUpInside)
         return button
@@ -36,10 +36,10 @@ final class ChoseTypeViewController: UIViewController {
     
     private lazy var irregularEventButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Нерегулярные событие", for: .normal)
+        button.setTitle(NSLocalizedString("tracker_creation.button.event", comment: ""), for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.setTitleColor(.ypWhite, for: .normal)
-        button.backgroundColor = .ypBlack
+        button.setTitleColor(.darkButtonFont, for: .normal)
+        button.backgroundColor = .darkBackground
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(irregularButtonTapped), for: .touchUpInside)
         return button
@@ -50,8 +50,18 @@ final class ChoseTypeViewController: UIViewController {
         configureView()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AnalyticsService.shared.trackEvent(event: .open, params: ["screen": "\(AnalyticsEventData.TrackersTypeScreen.name)"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        AnalyticsService.shared.trackEvent(event: .close, params: ["screen": "\(AnalyticsEventData.TrackersTypeScreen.name)"])
+    }
+    
     private func configureView(){
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .background
         
         view.addSubviews([titleLabel, habitButton, irregularEventButton])
         
