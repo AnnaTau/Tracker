@@ -12,12 +12,12 @@ final class StatisticsStore: NSObject {
     private var fetchedResultsController: NSFetchedResultsController<TrackerRecordCoreData>?
     
     // MARK: - Inits
-    convenience override init() {
+    private convenience override init() {
         let context = PersistentService.shared.context
         self.init(context: context)
     }
     
-    init(context: NSManagedObjectContext) {
+    private init(context: NSManagedObjectContext) {
         self.context = context
     }
 

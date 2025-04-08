@@ -50,20 +50,21 @@ final class TrackerStore: NSObject {
     }()
     
     // MARK: - Inits
-    convenience override init() {
+    private convenience override init() {
         let context = PersistentService.shared.context
         self.init(context: context)
     }
     
-    init(context: NSManagedObjectContext) {
+    private init(context: NSManagedObjectContext) {
         self.context = context
     }
     
     func fetchTrackers(for date: Date) -> [TrackerCategory] {
         updateFetchRequest(date: date.startOfDay())
         updateFetchRequestForPinned()
-        guard let sections = fetchedResultsController.sections else { return [] }
-        guard let pinnedObjects = fetchedPinnedController.fetchedObjects else { return [] }
+        guard let sections = fetchedResultsController.sections,
+              let pinnedObjects = fetchedPinnedController.fetchedObjects
+        else { return [] }
         var trackerCategories: [TrackerCategory] = []
         
         let pinnedTrackers = pinnedObjects.compactMap { getTracker(from: $0) }

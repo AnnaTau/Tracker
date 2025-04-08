@@ -11,7 +11,7 @@ enum AnalyticsEvent: String {
     case click
 }
 
-enum Parameters: String {
+enum Parameter: String {
     case screen
     case item
 }
@@ -20,64 +20,64 @@ enum AnalyticsEventData {
     enum MainScreen {
         static let name = "Main"
         static let clickAddTracker: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "add_tracker"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "add_tracker"
         ]
         static let clickFilter: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "filter"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "filter"
         ]
         static let clickEdit: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "edit"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "edit"
         ]
         static let clickDelete: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "delete"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "delete"
         ]
         static let clickTracker: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "track"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "track"
         ]
     }
     
     enum TrackersTypeScreen {
         static let name = "TrackersType"
         static let clickAddTracker: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "add_tracker"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "add_tracker"
         ]
         static let clickAddIrregularEvent: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "add_irregularEvent"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "add_irregularEvent"
         ]
     }
     
     enum NewTrackerScreen {
         static let name = "NewTracker"
         static let clickSave: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "save"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "save"
         ]
         static let clickCancel: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "cancel"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "cancel"
         ]
     }
     
     enum FiltersScreen {
         static let name = "Filters"
         static let selectFilter: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "select_filter"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "select_filter"
         ]
     }
     
     enum NewCategoryScreen {
         static let name = "NewCategory"
         static let clickCreate: [AnyHashable: Any] = [
-            Parameters.screen.rawValue: name,
-            Parameters.item.rawValue: "create"
+            Parameter.screen.rawValue: name,
+            Parameter.item.rawValue: "create"
         ]
     }
     

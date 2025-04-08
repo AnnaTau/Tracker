@@ -15,18 +15,18 @@ enum AnalyticsServiceError: Error {
 
 
 final class AnalyticsService {
-    private static let API_KEY = "a2af763e-5466-4e19-9f16-5dcaf72e0d4c"
+    private static let apiKey = "a2af763e-5466-4e19-9f16-5dcaf72e0d4c"
     static let shared = AnalyticsService()
     
     private init() {}
     
     static func activate() {
-        guard let configuration = AppMetricaConfiguration(apiKey: AnalyticsService.API_KEY) else { return }
+        guard let configuration = AppMetricaConfiguration(apiKey: AnalyticsService.apiKey) else { return }
         AppMetrica.activate(with: configuration)
     }
     
     func trackEvent(event: AnalyticsEvent, params: [AnyHashable : Any]) {
-        guard let reporter = AppMetrica.reporter(for: AnalyticsService.API_KEY) else {
+        guard let reporter = AppMetrica.reporter(for: AnalyticsService.apiKey) else {
             print("failed to create reporter: \(AnalyticsServiceError.createReporterError.localizedDescription)")
             return
         }

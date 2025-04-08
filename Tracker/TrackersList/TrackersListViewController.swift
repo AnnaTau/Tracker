@@ -191,7 +191,7 @@ final class TrackersListViewController: UIViewController {
         }
     }
     
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date.startOfDay()
         fetchTrackers(for: currentDate)
         currentFilter = .all
@@ -207,7 +207,7 @@ final class TrackersListViewController: UIViewController {
         AnalyticsService.shared.trackEvent(event: .click, params: AnalyticsEventData.MainScreen.clickAddTracker)
     }
     
-    @objc func filterButtonTapped() {
+    @objc private func filterButtonTapped() {
         let filtersViewController = FiltersViewController(delegate: self)
         filtersViewController.modalPresentationStyle = .pageSheet
         present(filtersViewController, animated: true, completion: nil)

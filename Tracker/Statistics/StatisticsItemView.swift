@@ -40,9 +40,9 @@ final class StatisticsItemView: GradientBorderView {
         addSubview(valueLabel)
         addSubview(descriptionLabel)
         
-        self.borderWidth = 1.0
-        self.cornerRadius = 16
-        self.gradientColors = [
+        borderWidth = 1.0
+        cornerRadius = 16
+        gradientColors = [
             UIColor(hex: "007BFA"),
             UIColor(hex: "46E69D"),
             UIColor(hex: "FD4C49")

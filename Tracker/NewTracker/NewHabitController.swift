@@ -325,11 +325,7 @@ final class NewHabitController: UIViewController {
         let isReady = isReadyToSave(text: trackerNameTextField.text)
         createButton.isEnabled = isReady
         createButton.backgroundColor = isReady ? .darkBackground : .ypGrey
-        if isReady {
-            createButton.setTitleColor(.darkButtonFont, for: .normal)
-        } else {
-            createButton.setTitleColor(.white, for: .normal)
-        }
+        createButton.setTitleColor(isReady ? .darkButtonFont : .white, for: .normal)
     }
     
     @objc private func cancelButtonTapped() {

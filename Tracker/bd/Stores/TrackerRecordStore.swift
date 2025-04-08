@@ -13,12 +13,12 @@ final class TrackerRecordStore {
     private let context: NSManagedObjectContext
     private let trackerStore = TrackerStore.shared
     
-    convenience init() {
+    private convenience init() {
         let context = PersistentService.shared.context
         self.init(context: context)
     }
     
-    init(context: NSManagedObjectContext) {
+    private init(context: NSManagedObjectContext) {
         self.context = context
     }
     
